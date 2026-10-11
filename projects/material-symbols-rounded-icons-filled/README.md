@@ -91,3 +91,7 @@ This package only publishes icons that exist upstream for Material Symbols Round
 Authoritative source for release availability: `ICON_MANIFEST.source` in this package.
 
 Catalog browser (mutable, for discovery only): https://fonts.google.com/icons?icon.style=Rounded
+
+## License
+
+MIT © CaptainDuckay. The generated icon data comes from Google's Material Symbols and is licensed under Apache License 2.0; see `LICENSE-THIRD-PARTY.md`.
