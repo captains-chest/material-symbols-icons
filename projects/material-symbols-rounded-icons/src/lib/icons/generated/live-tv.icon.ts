@@ -12,6 +12,11 @@ import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
       flex: 0 0 auto;
     }
 
+    :host(:where(.msr-icon)) {
+      inline-size: var(--msr-icon-size, 1em);
+      block-size: var(--msr-icon-size, 1em);
+    }
+
     .msr-icon-svg {
       display: block;
       inline-size: 100%;

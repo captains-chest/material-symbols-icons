@@ -10,12 +10,14 @@ const targets = [
     generatedDir: 'projects/material-symbols-rounded-icons/src/lib/icons/generated',
     hostDirectiveSnippet: 'hostDirectives: [MsrIconHostDirective]',
     svgDirectiveSnippet: 'msrIconSvg',
+    hostSizeSnippets: ['inline-size: var(--msr-icon-size, 1em);', 'block-size: var(--msr-icon-size, 1em);'],
   },
   {
     id: 'filled',
     generatedDir: 'projects/material-symbols-rounded-icons-filled/src/lib/icons/generated',
     hostDirectiveSnippet: 'hostDirectives: [MsrfIconHostDirective]',
     svgDirectiveSnippet: 'msrfIconSvg',
+    hostSizeSnippets: ['inline-size: var(--msrf-icon-size, 1em);', 'block-size: var(--msrf-icon-size, 1em);'],
   },
 ];
 
@@ -44,7 +46,7 @@ for (const target of targets) {
     throw new Error(`Smoke check failed (${target.id}): no generated icon components found.`);
   }
 
-  const requiredSnippets = [target.hostDirectiveSnippet, target.svgDirectiveSnippet, ...sharedSnippets];
+  const requiredSnippets = [target.hostDirectiveSnippet, target.svgDirectiveSnippet, ...target.hostSizeSnippets, ...sharedSnippets];
 
   for (const file of files) {
     const source = await fs.readFile(path.join(generatedDir, file), 'utf8');
