@@ -51,6 +51,11 @@ import { ${classPrefix}IconSvgDirective } from '../../shared/${directivePrefix}-
       flex: 0 0 auto;
     }
 
+    :host(:where(.${hostClass})) {
+      inline-size: var(--${hostClass}-size, 1em);
+      block-size: var(--${hostClass}-size, 1em);
+    }
+
     .${svgClass} {
       display: block;
       inline-size: 100%;

@@ -38,6 +38,14 @@ Icon components are content-sized by default: each host renders as an `inline-fl
 }
 ```
 
+To change the default size without selector specificity concerns, set the `--msrf-icon-size` custom property (it falls back to `1em`):
+
+```css
+.toolbar {
+  --msrf-icon-size: 1.25rem;
+}
+```
+
 The default `flex: 0 0 auto` keeps icons from absorbing extra width in flex parents that use layouts such as `justify-content: space-between`.
 
 To opt into filling a sized parent, use consumer CSS:
