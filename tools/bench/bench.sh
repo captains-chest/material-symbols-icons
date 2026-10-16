@@ -13,8 +13,13 @@ median() { sort -n | awk '{a[NR]=$1} END{print (NR%2)? a[(NR+1)/2] : (a[NR/2]+a[
 kv() { echo "$1=${2-}" >> $res/results.txt; echo "$1=${2-}"; }
 : > $res/results.txt
 
+# Never run with CI set: Angular disables its persistent cache (and with it dependency prebundling) under CI.
+unset CI
+# Optional: TGZ_FROM=<label> skips the library build/Storybook and reuses that label's tarballs.
+# Optional: PREBUNDLE_EXCLUDE=1 excludes both icon packages from ng serve dependency prebundling.
 # 1. library build (x runs)
 cd $repo
+if [ -n "${TGZ_FROM:-}" ]; then cp $OUT/$TGZ_FROM/tgz/*.tgz $res/tgz/; else
 for i in $(seq $runs); do
   rm -rf dist; s=$(date +%s.%N)
   pnpm build:lib > $res/build-$i.log 2>&1 || { echo "BUILD FAILED"; tail -30 $res/build-$i.log; exit 1; }
@@ -24,14 +29,20 @@ kv build_s_median $(median < $res/buildtimes.txt); kv build_s_all "$(tr '\n' ' '
 for p in material-symbols-rounded-icons material-symbols-rounded-icons-filled; do
   kv dist_bytes_$p $(du -sb dist/$p | cut -f1)
   kv dist_files_$p $(find dist/$p -type f | wc -l)
-  kv dist_js_bytes_$p $(find dist/$p -name '*.mjs' -printf '%s\n' | awk '{s+=$1} END{print s+0}')
+  kv dist_js_bytes_$p $(find dist/$p \( -name '*.mjs' -o -name '*.js' \) -printf '%s\n' | awk '{s+=$1} END{print s+0}')
   (cd dist/$p && npm pack --pack-destination $res/tgz > /dev/null 2>&1)
 done
+fi
 for t in $res/tgz/*.tgz; do kv tgz_bytes_$(basename $t .tgz | sed 's/captains-chest-//; s/-[0-9.]*$//') $(stat -c %s $t); done
 
 # 2. install into consumer app
 cd $APP
 node $here/gen-app.mjs $APP > /dev/null
+node -e '
+const fs=require("fs"); const f="angular.json"; const j=JSON.parse(fs.readFileSync(f,"utf8"));
+const o=(j.projects["ssr-test"].architect.serve.options ??= {});
+if (process.argv[1]==="1") o.prebundle={exclude:["@captains-chest/material-symbols-rounded-icons","@captains-chest/material-symbols-rounded-icons-filled"]}; else delete o.prebundle;
+fs.writeFileSync(f, JSON.stringify(j,null,2));' ${PREBUNDLE_EXCLUDE:-0}
 npm i $res/tgz/*.tgz > $res/install.log 2>&1 || { echo INSTALL FAILED; exit 1; }
 
 # 3. prod build
@@ -51,7 +62,7 @@ kv server_bundle_bytes $(find dist/ssr-test/server -name '*.mjs' -printf '%s\n' 
 h=$b/index.html
 kv html_bytes_30icons $(stat -c %s $h)
 kv html_style_blocks $(grep -o '<style' $h | wc -l)
-kv html_style_bytes $(grep -oE '<style[^>]*>[^<]*</style>' $h | awk '{s+=length} END{print s+0}')
+kv html_style_bytes $(python3 -c "import re,sys; print(sum(len(m) for m in re.findall(r'<style[^>]*>.*?</style>', open(sys.argv[1]).read(), re.S)))" $h)
 kv html_svg_count $(grep -o '<svg' $h | wc -l)
 
 # 3b. hydration check against the production SSR server (prerendered / and server-rendered /lazy)
@@ -81,6 +92,8 @@ kv serve_peak_mb_median $(median < $res/peaks.txt | awk '{printf "%d", $1/1024}'
 kv serve_lazy_html_has_icons $(grep -c '<msr-settings-icon' $res/serve-lazy-1.html)
 kv hydration "$(cat $res/hydration.json)"
 
+kv serve_dev_initial "$(grep -m1 'Initial total' $res/serve-1.log | awk -F'|' '{gsub(/^ +| +$/,"",$3); print $3}')"
+[ -n "${TGZ_FROM:-}" ] && { echo DONE $label; exit 0; }
 # 5. storybook
 cd $repo; s=$(date +%s.%N)
 if pnpm build-storybook > $res/storybook.log 2>&1; then sb=pass; else sb=FAIL; fi
