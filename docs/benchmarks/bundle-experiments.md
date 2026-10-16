@@ -197,7 +197,23 @@ against the configured ref and family before it is used.
 
 ## Ideas that keep the usage contract
 
-TODO
+Contract: one import, everything bundled, lazy loading as today, automatic styling, no per-icon import paths, no paid CDN.
+The estimates are mine, based on the round 1 numbers; "measured" means this round measured it.
+
+| # | Idea | Expected gain | Risk | Verdict |
+| --- | --- | --- | --- | --- |
+| 1 | **Shared CSS** via the host directive (round 1, `exp/shared-css`) | −39% SSR HTML, −3.7 MB dist | Low. Global class styles don't reach Shadow DOM | **Do** |
+| 2 | **Static templates** (`exp/slim-template`): `viewBox`/`focusable` become static attributes; `ariaLabel` input and aria bindings move to the shared host/svg directives, so each icon is a class with no body plus a static template | Less per-icon compiled code, so a smaller FESM and faster dev linking | Low–medium. `ariaLabel` is now a host-directive input: the template API is unchanged, but code reading `component.ariaLabel` directly breaks | **Prototyped** |
+| 3 | Compress path data (zig-zag varint + base64, decoded at runtime) | Raw −3% | Runtime decode on every render, SSR CPU | **Rejected (measured):** gzip gets *worse*, 0.610 → 0.971 MB for all outline paths. gzip already squeezes the ASCII path syntax well |
+| 4 | Shared path dictionary / dedupe outline + filled | 1394 of 4083 icons (34%, 770 KB raw) are identical in both variants | Needs a shared data package or filled→outline dependency. Only helps apps that use the same icon in both variants | Not worth it |
+| 5 | `<symbol>` sprite per document + `<use href>` (SSR-safe registry like the shared CSS) | Saves path bytes only when the same icon repeats on a page (lists, tables) | Hydration ordering, id collisions, Shadow DOM, no gain for distinct icons | Optional later, for icon-heavy lists |
+| 6 | ng-packagr post-step / builder that moves lazily used icons into lazy chunks | ~1 KB gzip per lazy-only icon | Chunking happens in the *consumer's* esbuild. A library post-step can't influence it, and a custom builder breaks "no extra step" | **Rejected:** not possible from the library side |
+| 7 | Dev-only stub module via the `development` export condition | Smaller dev bundle | Wrong or blank icons in dev = not visually identical. Angular's prebundler still bundles whatever the condition points to | **Rejected** |
+| 8 | Template-less renderer: build the SVG with `innerHTML` / precomputed DOM | Smaller per-icon code | Needs `bypassSecurityTrustHtml` (security, Trusted Types/CSP), hydration mismatch risk. #2 gets most of the gain safely | **Rejected** |
+| 9 | Content-hashed incremental generation (skip unchanged icons) | ≤ 1 s, since a warm svg-cache run is 2.2 s in total | More code, cache invalidation bugs | Not worth it after svg-cache |
+| 10 | Parallel library builds (outline and filled at the same time) | ~40% faster `build:lib` on multi-core CI | 2× peak memory | Cheap, optional (measured below) |
+| 11 | Unflattened per-file ESM (round 1, `exp/unflattened-fesm`) | −40% dev cold start, −2 GB, **only** with consumer `prebundle.exclude` | Slower without that setting; 4093 files | Optional, with docs |
+| 12 | Generator snapshot + CI cache (`exp/svg-cache`) | 548 s → 22.8 s cold / 2.2 s warm | Low | **Do** |
 
 ## Prototypes
 
