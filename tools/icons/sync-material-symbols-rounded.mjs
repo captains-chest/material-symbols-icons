@@ -81,6 +81,18 @@ export class ${className} {
 `;
 }
 
+const PROFILE = process.env.MSR_SYNC_PROFILE === '1';
+const phaseTotals = new Map();
+async function phase(name, fn) {
+  if (!PROFILE) return fn();
+  const start = performance.now();
+  try {
+    return await fn();
+  } finally {
+    phaseTotals.set(name, (phaseTotals.get(name) ?? 0) + performance.now() - start);
+  }
+}
+
 async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });
 }
@@ -225,9 +237,9 @@ async function generateForTarget(args, config, target) {
   const collisionReportPath = path.join(repoRoot, `tools/icons/collision-report-${target.id}.txt`);
   const missingReportPath = path.join(repoRoot, `tools/icons/missing-report-${target.id}.txt`);
 
-  const tmp = await clonePromisorRepo(config);
+  const tmp = await phase('git-clone', () => clonePromisorRepo(config));
 
-  const discoveredOrRequested = await readIconList(args, tmp, config, target);
+  const discoveredOrRequested = await phase('git-ls-tree', () => readIconList(args, tmp, config, target));
   const selected = args.limit ? discoveredOrRequested.slice(0, args.limit) : discoveredOrRequested;
 
   if (selected.length === 0) throw new Error(`No icons selected for generation for target: ${target.id}`);
@@ -246,8 +258,8 @@ async function generateForTarget(args, config, target) {
 
   await removeFileIfExists(collisionReportPath);
 
-  await materializeOnlyPaths(tmp, config, target, selected);
-  await clearGeneratedFiles(paths.generatedDir);
+  await phase('git-sparse-checkout', () => materializeOnlyPaths(tmp, config, target, selected));
+  await phase('clear-generated', () => clearGeneratedFiles(paths.generatedDir));
 
   const missing = [];
   const generated = [];
@@ -258,22 +270,25 @@ async function generateForTarget(args, config, target) {
 
     let svgText;
     try {
-      svgText = await fs.readFile(svgPath, 'utf8');
+      svgText = await phase('read-svg', () => fs.readFile(svgPath, 'utf8'));
     } catch {
       missing.push(iconName);
       continue;
     }
 
+    const sanitizeStart = PROFILE ? performance.now() : 0;
     const { viewBox, inner } = sanitizeSvg(svgText, {
       targetId: target.id,
       iconName,
       sourcePath: relativeSvgPath,
     });
+    if (PROFILE) phaseTotals.set('sanitize-svg', (phaseTotals.get('sanitize-svg') ?? 0) + performance.now() - sanitizeStart);
     const className = `${target.classPrefix}${toPascalCase(iconName)}IconComponent`;
     const fileName = `${iconName.replaceAll('_', '-')}.icon.ts`;
     const selector = `${target.selectorPrefix}-${iconName.replaceAll('_', '-')}-icon`;
 
-    await fs.writeFile(
+    await phase('write-component', () =>
+      fs.writeFile(
       path.join(paths.generatedDir, fileName),
       componentSource({
         selector,
@@ -284,7 +299,7 @@ async function generateForTarget(args, config, target) {
         directivePrefix: target.directivePrefix,
       }),
       'utf8',
-    );
+    ));
 
     generated.push({ iconName, className, fileName });
   }
@@ -377,8 +392,16 @@ async function main() {
     throw new Error(`Unknown target "${args.target}". Available targets: ${targets.map((t) => t.id).join(', ')}`);
   }
 
+  const totalStart = performance.now();
   for (const target of selectedTargets) {
     await generateForTarget(args, config, target);
+  }
+  if (PROFILE) {
+    const total = performance.now() - totalStart;
+    const rows = Object.fromEntries([...phaseTotals].map(([k, v]) => [k, Math.round(v)]));
+    rows['other (index, map, manifest, reports)'] = Math.round(total - [...phaseTotals.values()].reduce((a, b) => a + b, 0));
+    rows.total = Math.round(total);
+    console.log(`MSR_SYNC_PROFILE ${JSON.stringify(rows)}`);
   }
 }
 
