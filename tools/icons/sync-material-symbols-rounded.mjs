@@ -45,24 +45,6 @@ import { ${classPrefix}IconSvgDirective } from '../../shared/${directivePrefix}-
   selector: '${selector}',
   imports: [${classPrefix}IconSvgDirective],
   hostDirectives: [${classPrefix}IconHostDirective],
-  styles: [\`
-    :host.${hostClass} {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.${hostClass})) {
-      inline-size: var(--${hostClass}-size, 1em);
-      block-size: var(--${hostClass}-size, 1em);
-    }
-
-    .${svgClass} {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  \`],
   template: \
 \`<svg
   ${directivePrefix}IconSvg
