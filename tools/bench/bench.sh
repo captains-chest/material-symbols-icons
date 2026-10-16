@@ -54,6 +54,12 @@ kv html_style_blocks $(grep -o '<style' $h | wc -l)
 kv html_style_bytes $(grep -oE '<style[^>]*>[^<]*</style>' $h | awk '{s+=length} END{print s+0}')
 kv html_svg_count $(grep -o '<svg' $h | wc -l)
 
+# 3b. hydration check against the production SSR server (prerendered / and server-rendered /lazy)
+NG_ALLOWED_HOSTS=localhost PORT=4390 node dist/ssr-test/server/server.mjs > $res/prod-server.log 2>&1 & ppid=$!
+for t in $(seq 60); do curl -s -o /dev/null localhost:4390/ && break; sleep 0.5; done
+node $here/hydration-check.mjs http://localhost:4390/ http://localhost:4390/lazy > $res/hydration.json 2>&1
+kill $ppid; wait $ppid 2>/dev/null
+
 # 4. ng serve SSR cold start (x runs)
 for i in $(seq $runs); do
   rm -rf .angular/cache; port=$((4400 + i))
@@ -67,7 +73,6 @@ for i in $(seq $runs); do
   awk -v a=$(date +%s.%N) -v b=$s 'BEGIN{printf "%.1f\n", a-b}' >> $res/servetimes.txt
   [ $ok = 1 ] || echo "serve run $i did not return 200" >> $res/results.txt
   curl -s localhost:$port/lazy > $res/serve-lazy-$i.html
-  if [ $i = 1 ]; then node $here/hydration-check.mjs http://localhost:$port/ http://localhost:$port/lazy > $res/hydration.json 2>&1; fi
   sleep 2; pkill -P $spid; kill $spid 2>/dev/null; pkill -f "ng serve --port $port"; wait $spid 2>/dev/null; sleep 1; kill $mpid 2>/dev/null
   cat $res/peak-$i >> $res/peaks.txt
 done
