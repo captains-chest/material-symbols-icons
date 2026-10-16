@@ -6,7 +6,7 @@
     "build": "ng build",
     "build:lib:outline": "ng build material-symbols-rounded-icons && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons",
     "build:lib:filled": "ng build material-symbols-rounded-icons-filled && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons-filled",
-    "build:lib": "pnpm run \"/^build:lib:(outline|filled)$/\"",
+    "build:lib": "vp run lib",
     "sync:icons": "node tools/icons/sync-material-symbols-rounded.mjs --target all",
     "sync:icons:outline": "node tools/icons/sync-material-symbols-rounded.mjs --target outline",
     "sync:icons:filled": "node tools/icons/sync-material-symbols-rounded.mjs --target filled",
@@ -14,8 +14,8 @@
     "verify:generated": "git diff --exit-code -- projects/material-symbols-rounded-icons/src/lib/icons projects/material-symbols-rounded-icons/src/lib/generated projects/material-symbols-rounded-icons-filled/src/lib/icons projects/material-symbols-rounded-icons-filled/src/lib/generated && test -z \"$(git ls-files --others --exclude-standard -- projects/material-symbols-rounded-icons/src/lib/icons/generated projects/material-symbols-rounded-icons/src/lib/generated projects/material-symbols-rounded-icons-filled/src/lib/icons/generated projects/material-symbols-rounded-icons-filled/src/lib/generated)\"",
     "verify:generated:sync": "pnpm sync:icons && pnpm verify:generated",
     "test:smoke": "node tools/icons/smoke-check.mjs",
-    "test:render": "node --test tools/icons/render.test.mjs",
-    "test:security": "node --test tools/icons/svg-sanitizer.test.mjs tools/icons/upstream-policy.test.mjs",
+    "test:render": "vp test run tools/icons/render.test.mjs",
+    "test:security": "vp test run tools/icons/svg-sanitizer.test.mjs tools/icons/upstream-policy.test.mjs",
     "ci:baseline": "pnpm test:security && pnpm verify:generated:sync && pnpm build:lib && pnpm test:smoke && pnpm test:render",
     "storybook": "ng run icon-pack:storybook",
     "build-storybook": "ng run icon-pack:build-storybook",
@@ -47,9 +47,9 @@
     "@storybook/angular": "^10.6.1",
     "@storybook/builder-vite": "^10.6.1",
     "ng-packagr": "^22.2.4",
-    "prettier": "^3.9.9",
     "storybook": "^10.6.1",
     "typescript": "~6.0.3",
-    "vite": "^8.3.4"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   }
 }

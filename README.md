@@ -19,13 +19,23 @@ Generated icon source files are committed because they are the public API under 
 
 ```bash
 pnpm sync:icons       # fetch + generate icon components for outline + filled from pinned upstream source
-pnpm build:lib        # build both publishable Angular libraries
+pnpm build:lib        # build both publishable Angular libraries (cached, see below)
+pnpm exec vp fmt      # format hand-written sources with Oxfmt
+pnpm exec vp check    # format check + type-aware lint
 pnpm storybook        # run Storybook playground
 pnpm build-storybook  # build the Storybook playground
 pnpm ci:baseline      # determinism + build + smoke checks
 pnpm release:check    # full pre-publish validation + npm pack dry-run
 pnpm release:publish  # publish dist packages to npm
 ```
+
+## Toolchain
+
+The workspace uses [Vite+](https://viteplus.dev) (`vite-plus`) for formatting (Oxfmt), linting (Oxlint), tests (Vitest), and task caching. Angular builds still run through the Angular CLI and ng-packagr.
+
+`pnpm build:lib` runs the `lib:outline` and `lib:filled` tasks from `vite.config.ts` in parallel. When their inputs are unchanged, Vite+ restores `dist/` from `node_modules/.vite/task-cache` instead of rebuilding. Run `pnpm exec vp cache clean` to clear it, or `pnpm exec vp run --no-cache lib` to force a rebuild.
+
+Generated icon sources (`projects/*/src/lib/icons/**` and `projects/*/src/lib/generated/**`) are excluded from formatting and linting so they stay byte-identical to the generator output.
 
 ## Generation scope
 
@@ -34,6 +44,7 @@ By default, `pnpm sync:icons` generates the full Material Symbols Rounded set fo
 For fast local checks, use `pnpm sync:icons:sample` to generate the sample list from `tools/icons/sample-icons.txt`.
 
 The sync pipeline is pinned by `tools/icons/upstream.json`:
+
 - family: Material Symbols Rounded
 - outline variant: FILL=0, wght=400, GRAD=0, opsz=24
 - filled variant: FILL=1, wght=400, GRAD=0, opsz=24

@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import test from 'node:test';
+import { test } from 'vite-plus/test';
 
 const repoRoot = process.cwd();
 const syncScript = path.join(repoRoot, 'tools/icons/sync-material-symbols-rounded.mjs');

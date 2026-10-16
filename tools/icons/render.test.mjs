@@ -5,7 +5,7 @@ import '@angular/compiler';
 import assert from 'node:assert/strict';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { test } from 'node:test';
+import { test } from 'vite-plus/test';
 import { pathToFileURL } from 'node:url';
 import { NgComponentOutlet } from '@angular/common';
 import { Component, CSP_NONCE, inject, provideZonelessChangeDetection, ViewContainerRef } from '@angular/core';
