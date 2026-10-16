@@ -5,6 +5,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
+import { computeInputsHash, generatedPaths, removeStamp, writeStamp } from './generation-stamp.mjs';
 import { formatSanitizationError, sanitizeSvg, SvgSanitizationError } from './svg-sanitizer.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -327,18 +328,8 @@ async function writeLines(filePath, lines) {
   await fs.writeFile(filePath, `${lines.join('\n')}\n`, 'utf8');
 }
 
-function targetPaths(target) {
-  const libRoot = path.join(repoRoot, target.projectPath, 'src/lib');
-  return {
-    generatedDir: path.join(libRoot, 'icons/generated'),
-    generatedIndexPath: path.join(libRoot, 'icons/index.ts'),
-    generatedComponentMapPath: path.join(libRoot, 'icons/component-map.ts'),
-    manifestPath: path.join(libRoot, 'generated/icon-manifest.ts'),
-  };
-}
-
-async function generateForTarget(args, config, target, snapshot) {
-  const paths = targetPaths(target);
+async function generateForTarget(args, config, target, snapshot, inputsHash) {
+  const paths = generatedPaths(repoRoot, target);
   const collisionReportPath = path.join(repoRoot, `tools/icons/collision-report-${target.id}.txt`);
   const missingReportPath = path.join(repoRoot, `tools/icons/missing-report-${target.id}.txt`);
 
@@ -364,6 +355,8 @@ async function generateForTarget(args, config, target, snapshot) {
 
   await removeFileIfExists(collisionReportPath);
 
+  // Drop the stamp first so a failed run never leaves half-written output marked as fresh.
+  await removeStamp(repoRoot, target);
   await clearGeneratedFiles(paths.generatedDir);
 
   const missing = [];
@@ -471,6 +464,11 @@ ${generated.map(({ iconName, className }) => `  '${iconName}': ${className},`).j
 
   await ensureDir(path.dirname(paths.manifestPath));
   await fs.writeFile(paths.manifestPath, manifest, 'utf8');
+  await writeStamp(repoRoot, target, {
+    inputsHash,
+    iconCount: generated.length,
+    complete: !args.iconsFile && !args.limit,
+  });
 
   console.log(
     `[${target.id}] Generated ${generated.length} icons from ${config.owner}/${config.repo}@${sha}` +
@@ -500,8 +498,9 @@ async function main() {
   }
 
   const snapshot = await loadSnapshot(config, targets);
+  const inputsHash = await computeInputsHash(repoRoot);
   for (const target of selectedTargets) {
-    await generateForTarget(args, config, target, snapshot);
+    await generateForTarget(args, config, target, snapshot, inputsHash);
   }
 }
 
