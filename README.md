@@ -15,7 +15,7 @@ There is intentionally no standalone Angular demo application. Storybook is the 
 
 Generated icon source files are committed because they are the public API under review. Build outputs such as `dist/` and `storybook-static/` are ignored and regenerated locally or in CI.
 
-`pnpm build:lib` runs `ng build` (root FESM entry point) and then `tools/icons/emit-icon-entry-points.mjs`. That step emits one partial-compiled ES module and `.d.ts` per icon under `esm2022/`, served through the `"./*"` subpath export in each project's `package.json` (for example `@captains-chest/material-symbols-rounded-icons/home`). Each icon module re-exports the shared host directive so consumers' Angular compiler can reference it. This step is custom and sits outside the Angular Package Format, so re-check it when upgrading Angular or ng-packagr.
+`pnpm build:lib` runs `ng build` for the root entry point (shared directives, styles, icon names and manifest) and then `tools/icons/emit-icon-entry-points.mjs`. That step emits one partial-compiled ES module and `.d.ts` per icon under `icons/`, served through the `"./*"` subpath export in each project's `package.json` (for example `@captains-chest/material-symbols-rounded-icons/home`). Icon modules import the shared directives from the package root by name, so every icon shares one directive instance. The step also packages the `ng update` migration from `tools/icons/ng-update/` into `schematics/`, with a generated class-name-to-subpath map. ng-packagr secondary entry points would produce the same layout, but a full 4,083-entry build took about 5 minutes and 10 GB of memory per package. This step is custom and sits outside the Angular Package Format, so re-check it when upgrading Angular or ng-packagr.
 
 ## Core commands
 

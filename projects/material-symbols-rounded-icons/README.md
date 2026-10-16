@@ -19,9 +19,19 @@ import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-i
 export class DemoComponent {}
 ```
 
-Import each icon from its own subpath: the icon's file name, which is the kebab-case part of its selector (`<msr-arrow-back-icon>` → `@captains-chest/material-symbols-rounded-icons/arrow-back`). Subpath imports keep `ng serve` fast and memory-light, speed up production builds, and let icons used only on lazy routes stay in lazy chunks. They need no `angular.json` changes.
+Import each icon from its own subpath, named after the kebab-case part of its selector (`<msr-arrow-back-icon>` → `@captains-chest/material-symbols-rounded-icons/arrow-back`). Each icon is a separate module, so `ng serve` and production builds only process the icons you import, and icons used only on lazy routes stay in lazy chunks. No `angular.json` changes are needed.
 
-The package root still exports every icon (`import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-icons'`), so existing imports keep working. The root is one large bundle, though, so the dev server and production builds process all icons. Root and subpath imports can be mixed while you migrate.
+The package root exports the shared API only: `MsrIconHostDirective`, `MsrIconSvgDirective`, `MSR_ICON_STYLES`, `MSR_ICON_NAMES`/`MsrIconName` and `ICON_MANIFEST`.
+
+### Migrating from 2.x
+
+3.0 removes the icon components from the package root. `ng update` rewrites root icon imports to subpath imports:
+
+```sh
+ng update @captains-chest/material-symbols-rounded-icons
+```
+
+If you already installed 3.x, run the migration on its own with `ng update @captains-chest/material-symbols-rounded-icons --migrate-only --from=2.2.2 --to=3.0.0`. It warns about namespace (`import * as`) and dynamic `import('@captains-chest/material-symbols-rounded-icons')` usages, which need a manual change. To migrate by hand, import each `Msr…IconComponent` from the subpath that matches its selector.
 
 Each icon component supports an optional `ariaLabel` input. Bind it in templates, or set it with `ComponentRef.setInput('ariaLabel', …)` / `NgComponentOutlet` inputs:
 

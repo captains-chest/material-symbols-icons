@@ -1,0 +1,9 @@
+{
+  "schematics": {
+    "subpath-imports": {
+      "version": "3.0.0",
+      "description": "Moves icon component imports from the package root to per-icon subpaths.",
+      "factory": "./subpath-imports.js#migrate"
+    }
+  }
+}
