@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-vitals-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 0 24 24'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M9 20q-.475 0-.85-.275t-.55-.7L5.3 13H2q-.425 0-.712-.288Q1 12.425 1 12t.288-.713Q1.575 11 2 11h4q.325 0 .562.175.238.175.363.475L9 17.1l4.6-12.125q.175-.425.55-.7Q14.525 4 15 4t.85.275q.375.275.55.7L18.7 11H22q.425 0 .712.287.288.288.288.713t-.288.712Q22.425 13 22 13h-4q-.325 0-.562-.175-.238-.175-.363-.475L15 6.9l-4.6 12.125q-.175.425-.55.7Q9.475 20 9 20Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 0 24 24"><path d="M9 20q-.475 0-.85-.275t-.55-.7L5.3 13H2q-.425 0-.712-.288Q1 12.425 1 12t.288-.713Q1.575 11 2 11h4q.325 0 .562.175.238.175.363.475L9 17.1l4.6-12.125q.175-.425.55-.7Q14.525 4 15 4t.85.275q.375.275.55.7L18.7 11H22q.425 0 .712.287.288.288.288.713t-.288.712Q22.425 13 22 13h-4q-.325 0-.562-.175-.238-.175-.363-.475L15 6.9l-4.6 12.125q-.175.425-.55.7Q9.475 20 9 20Z"/></svg>`,
 })
-export class MsrVitalsIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrVitalsIconComponent {}

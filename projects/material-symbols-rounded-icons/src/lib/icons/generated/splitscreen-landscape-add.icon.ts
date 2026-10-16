@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-splitscreen-landscape-add-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M560-320h120q17 0 28.5-11.5T720-360v-240q0-17-11.5-28.5T680-640H560q-17 0-28.5 11.5T520-600v240q0 17 11.5 28.5T560-320Zm-280 0h120q17 0 28.5-11.5T440-360v-240q0-17-11.5-28.5T400-640H280q-17 0-28.5 11.5T240-600v240q0 17 11.5 28.5T280-320Zm480-400h-40q-17 0-28.5-11.5T680-760q0-17 11.5-28.5T720-800h40v-40q0-17 11.5-28.5T800-880q17 0 28.5 11.5T840-840v40h40q17 0 28.5 11.5T920-760q0 17-11.5 28.5T880-720h-40v40q0 17-11.5 28.5T800-640q-17 0-28.5-11.5T760-680v-40ZM160-240v-480 480Zm0 80q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h400q17 0 28.5 11.5T600-760q0 17-11.5 28.5T560-720H160v480h640v-280q0-17 11.5-28.5T840-560q17 0 28.5 11.5T880-520v280q0 33-23.5 56.5T800-160H160Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M560-320h120q17 0 28.5-11.5T720-360v-240q0-17-11.5-28.5T680-640H560q-17 0-28.5 11.5T520-600v240q0 17 11.5 28.5T560-320Zm-280 0h120q17 0 28.5-11.5T440-360v-240q0-17-11.5-28.5T400-640H280q-17 0-28.5 11.5T240-600v240q0 17 11.5 28.5T280-320Zm480-400h-40q-17 0-28.5-11.5T680-760q0-17 11.5-28.5T720-800h40v-40q0-17 11.5-28.5T800-880q17 0 28.5 11.5T840-840v40h40q17 0 28.5 11.5T920-760q0 17-11.5 28.5T880-720h-40v40q0 17-11.5 28.5T800-640q-17 0-28.5-11.5T760-680v-40ZM160-240v-480 480Zm0 80q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h400q17 0 28.5 11.5T600-760q0 17-11.5 28.5T560-720H160v480h640v-280q0-17 11.5-28.5T840-560q17 0 28.5 11.5T880-520v280q0 33-23.5 56.5T800-160H160Z"/></svg>`,
 })
-export class MsrSplitscreenLandscapeAddIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrSplitscreenLandscapeAddIconComponent {}

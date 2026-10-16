@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-mobile-menu-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M320-40q-17 0-28.5-11.5T280-80q0-17 11.5-28.5T320-120q17 0 28.5 11.5T360-80q0 17-11.5 28.5T320-40Zm160 0q-17 0-28.5-11.5T440-80q0-17 11.5-28.5T480-120q17 0 28.5 11.5T520-80q0 17-11.5 28.5T480-40Zm160 0q-17 0-28.5-11.5T600-80q0-17 11.5-28.5T640-120q17 0 28.5 11.5T680-80q0 17-11.5 28.5T640-40Zm0-240v-560H320v560h320ZM480-720q17 0 28.5-11.5T520-760q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760q0 17 11.5 28.5T480-720ZM320-280v-560 560Zm400-560v82q17 3 28.5 16.5T760-711v62q0 17-11.5 30.5T720-602v322q0 33-23.5 56.5T640-200H320q-33 0-56.5-23.5T240-280v-560q0-33 23.5-56.5T320-920h320q33 0 56.5 23.5T720-840Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M320-40q-17 0-28.5-11.5T280-80q0-17 11.5-28.5T320-120q17 0 28.5 11.5T360-80q0 17-11.5 28.5T320-40Zm160 0q-17 0-28.5-11.5T440-80q0-17 11.5-28.5T480-120q17 0 28.5 11.5T520-80q0 17-11.5 28.5T480-40Zm160 0q-17 0-28.5-11.5T600-80q0-17 11.5-28.5T640-120q17 0 28.5 11.5T680-80q0 17-11.5 28.5T640-40Zm0-240v-560H320v560h320ZM480-720q17 0 28.5-11.5T520-760q0-17-11.5-28.5T480-800q-17 0-28.5 11.5T440-760q0 17 11.5 28.5T480-720ZM320-280v-560 560Zm400-560v82q17 3 28.5 16.5T760-711v62q0 17-11.5 30.5T720-602v322q0 33-23.5 56.5T640-200H320q-33 0-56.5-23.5T240-280v-560q0-33 23.5-56.5T320-920h320q33 0 56.5 23.5T720-840Z"/></svg>`,
 })
-export class MsrMobileMenuIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrMobileMenuIconComponent {}

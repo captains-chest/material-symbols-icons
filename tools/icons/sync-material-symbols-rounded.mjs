@@ -35,49 +35,17 @@ function toPascalCase(iconName) {
 
 function componentSource({ selector, className, viewBox, innerSvg, classPrefix, directivePrefix }) {
   const escapedInner = innerSvg.replace(/`/g, '\\`').replace(/\$\{/g, '\\\${');
-  const hostClass = `${directivePrefix}-icon`;
-  const svgClass = `${directivePrefix}-icon-svg`;
-  return `import { Component, input } from '@angular/core';
+  return `import { Component } from '@angular/core';
 import { ${classPrefix}IconHostDirective } from '../../shared/${directivePrefix}-icon-host.directive';
 import { ${classPrefix}IconSvgDirective } from '../../shared/${directivePrefix}-icon-svg.directive';
 
 @Component({
   selector: '${selector}',
   imports: [${classPrefix}IconSvgDirective],
-  hostDirectives: [${classPrefix}IconHostDirective],
-  styles: [\`
-    :host.${hostClass} {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.${hostClass})) {
-      inline-size: var(--${hostClass}-size, 1em);
-      block-size: var(--${hostClass}-size, 1em);
-    }
-
-    .${svgClass} {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  \`],
-  template: \
-\`<svg
-  ${directivePrefix}IconSvg
-  focusable="false"
-  [attr.viewBox]="'${viewBox}'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  ${escapedInner}
-</svg>\`,
+  hostDirectives: [{ directive: ${classPrefix}IconHostDirective, inputs: ['ariaLabel'] }],
+  template: \`<svg ${directivePrefix}IconSvg focusable="false" viewBox="${viewBox}">${escapedInner}</svg>\`,
 })
-export class ${className} {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class ${className} {}
 `;
 }
 

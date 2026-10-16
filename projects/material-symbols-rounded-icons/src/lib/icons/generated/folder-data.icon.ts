@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-folder-data-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M600-40q-33 0-56.5-23.5T520-120q0-23 11-41t29-29v-221q-18-11-29-28.5T520-480q0-33 23.5-56.5T600-560q33 0 56.5 23.5T680-480q0 23-11 40.5T640-411v115l160-53v-62q-18-11-29-28.5T760-480q0-33 23.5-56.5T840-560q33 0 56.5 23.5T920-480q0 23-11 40.5T880-411v61q0 26-15 47t-40 29l-185 62v22q18 11 29 29t11 41q0 33-23.5 56.5T600-40ZM160-160v-560 560Zm0 0q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h207q16 0 30.5 6t25.5 17l57 57h360q17 0 28.5 11.5T880-680q0 17-11.5 28.5T840-640H447l-80-80H160v480h240q17 0 28.5 11.5T440-200q0 17-11.5 28.5T400-160H160Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M600-40q-33 0-56.5-23.5T520-120q0-23 11-41t29-29v-221q-18-11-29-28.5T520-480q0-33 23.5-56.5T600-560q33 0 56.5 23.5T680-480q0 23-11 40.5T640-411v115l160-53v-62q-18-11-29-28.5T760-480q0-33 23.5-56.5T840-560q33 0 56.5 23.5T920-480q0 23-11 40.5T880-411v61q0 26-15 47t-40 29l-185 62v22q18 11 29 29t11 41q0 33-23.5 56.5T600-40ZM160-160v-560 560Zm0 0q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h207q16 0 30.5 6t25.5 17l57 57h360q17 0 28.5 11.5T880-680q0 17-11.5 28.5T840-640H447l-80-80H160v480h240q17 0 28.5 11.5T440-200q0 17-11.5 28.5T400-160H160Z"/></svg>`,
 })
-export class MsrFolderDataIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrFolderDataIconComponent {}

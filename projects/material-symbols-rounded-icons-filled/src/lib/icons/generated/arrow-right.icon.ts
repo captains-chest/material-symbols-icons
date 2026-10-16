@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrfIconHostDirective } from '../../shared/msrf-icon-host.directive';
 import { MsrfIconSvgDirective } from '../../shared/msrf-icon-svg.directive';
 
 @Component({
   selector: 'msrf-arrow-right-icon',
   imports: [MsrfIconSvgDirective],
-  hostDirectives: [MsrfIconHostDirective],
-  styles: [`
-    :host.msrf-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msrf-icon)) {
-      inline-size: var(--msrf-icon-size, 1em);
-      block-size: var(--msrf-icon-size, 1em);
-    }
-
-    .msrf-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrfIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M420-308q-8 0-14-5.5t-6-14.5v-304q0-9 6-14.5t14-5.5q2 0 14 6l145 145q5 5 7 10t2 11q0 6-2 11t-7 10L434-314q-3 3-6.5 4.5T420-308Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrfIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M420-308q-8 0-14-5.5t-6-14.5v-304q0-9 6-14.5t14-5.5q2 0 14 6l145 145q5 5 7 10t2 11q0 6-2 11t-7 10L434-314q-3 3-6.5 4.5T420-308Z"/></svg>`,
 })
-export class MsrfArrowRightIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrfArrowRightIconComponent {}

@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-share-windows-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M320-360q-17 0-28.5-11.5T280-400v-200q0-33 23.5-56.5T360-680h326l-75-75q-12-12-12-28.5t12-28.5q12-12 28.5-12t28.5 12l144 144q12 12 12 28t-12 28L668-468q-11 11-27.5 11.5T612-468q-12-12-12.5-28.5T611-525l75-75H360v200q0 17-11.5 28.5T320-360ZM200-120q-33 0-56.5-23.5T120-200v-560q0-17 11.5-28.5T160-800q17 0 28.5 11.5T200-760v560h480v-120q0-17 11.5-28.5T720-360q17 0 28.5 11.5T760-320v120q0 33-23.5 56.5T680-120H200Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M320-360q-17 0-28.5-11.5T280-400v-200q0-33 23.5-56.5T360-680h326l-75-75q-12-12-12-28.5t12-28.5q12-12 28.5-12t28.5 12l144 144q12 12 12 28t-12 28L668-468q-11 11-27.5 11.5T612-468q-12-12-12.5-28.5T611-525l75-75H360v200q0 17-11.5 28.5T320-360ZM200-120q-33 0-56.5-23.5T120-200v-560q0-17 11.5-28.5T160-800q17 0 28.5 11.5T200-760v560h480v-120q0-17 11.5-28.5T720-360q17 0 28.5 11.5T760-320v120q0 33-23.5 56.5T680-120H200Z"/></svg>`,
 })
-export class MsrShareWindowsIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrShareWindowsIconComponent {}

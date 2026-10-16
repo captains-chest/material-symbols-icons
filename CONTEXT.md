@@ -53,11 +53,11 @@ A rendering contract where icon components behave like inline visual symbols by 
 _Avoid_: Flex-grow-by-default icon hosts, parent-space-filling icon defaults, physical width/height for baseline sizing, dynamic style bindings for static icon layout rules, required consumer CSS imports for baseline rendering
 
 **Variant Host Class Contract**:
-A public styling contract where generated icon component hosts expose one stable variant-level CSS class that carries both variant identity and host layout through `:host.msr-icon` and `:host.msrf-icon` component styles, while allowing Consumer Applications to target the class for sizing, color, and contextual styling.
+A public styling contract where generated icon component hosts expose one stable variant-level CSS class that carries both variant identity and host layout through shared `.msr-icon` and `.msrf-icon` document styles injected once by the host directive, while allowing Consumer Applications to target the class for sizing, color, and contextual styling.
 _Avoid_: Inner-SVG-only variant classes, per-icon CSS classes by default, separate shared host layout classes
 
 **Variant SVG Class Contract**:
-A public styling contract where generated icon SVG elements expose one stable variant-level CSS class that carries SVG layout and color inheritance through `.msr-icon-svg` and `.msrf-icon-svg` component styles.
+A public styling contract where generated icon SVG elements expose one stable variant-level CSS class that carries SVG layout and color inheritance through shared `.msr-icon-svg` and `.msrf-icon-svg` document styles.
 _Avoid_: Unclassed inner SVG layout, shared cross-package SVG layout classes
 
 **Pinned Sync Pipeline**:

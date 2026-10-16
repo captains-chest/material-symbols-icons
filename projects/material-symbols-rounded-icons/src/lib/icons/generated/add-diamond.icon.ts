@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-add-diamond-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M440-440v80q0 17 11.5 28.5T480-320q17 0 28.5-11.5T520-360v-80h80q17 0 28.5-11.5T640-480q0-17-11.5-28.5T600-520h-80v-80q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600v80h-80q-17 0-28.5 11.5T320-480q0 17 11.5 28.5T360-440h80Zm40 360q-16 0-30.5-5.5T424-103L105-423q-11-12-18-26.5T80-480q0-16 7-30.5t18-25.5l319-320q12-12 26-18t30-6q16 0 31 6t26 18l318 320q11 12 18 26t7 30q0 16-6.5 30.5T855-423L537-103q-11 11-26 17t-31 6Zm0-80 319-320-319-320-319 320 319 320Zm0-320Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M440-440v80q0 17 11.5 28.5T480-320q17 0 28.5-11.5T520-360v-80h80q17 0 28.5-11.5T640-480q0-17-11.5-28.5T600-520h-80v-80q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600v80h-80q-17 0-28.5 11.5T320-480q0 17 11.5 28.5T360-440h80Zm40 360q-16 0-30.5-5.5T424-103L105-423q-11-12-18-26.5T80-480q0-16 7-30.5t18-25.5l319-320q12-12 26-18t30-6q16 0 31 6t26 18l318 320q11 12 18 26t7 30q0 16-6.5 30.5T855-423L537-103q-11 11-26 17t-31 6Zm0-80 319-320-319-320-319 320 319 320Zm0-320Z"/></svg>`,
 })
-export class MsrAddDiamondIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrAddDiamondIconComponent {}

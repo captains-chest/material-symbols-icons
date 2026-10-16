@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-nest-true-radiant-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M240-120q-50 0-85-35t-35-85v-360q0-17 11.5-28.5T160-640q17 0 28.5 11.5T200-600v360q0 17 11.5 28.5T240-200q17 0 28.5-11.5T280-240v-480q0-50 35-85t85-35q50 0 85 35t35 85v480q0 17 11.5 28.5T560-200q17 0 28.5-11.5T600-240v-480q0-50 35-85t85-35q50 0 85 35t35 85v360q0 17-11.5 28.5T800-320q-17 0-28.5-11.5T760-360v-360q0-17-11.5-28.5T720-760q-17 0-28.5 11.5T680-720v480q0 50-35 85t-85 35q-50 0-85-35t-35-85v-480q0-17-11.5-28.5T400-760q-17 0-28.5 11.5T360-720v480q0 50-35 85t-85 35Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M240-120q-50 0-85-35t-35-85v-360q0-17 11.5-28.5T160-640q17 0 28.5 11.5T200-600v360q0 17 11.5 28.5T240-200q17 0 28.5-11.5T280-240v-480q0-50 35-85t85-35q50 0 85 35t35 85v480q0 17 11.5 28.5T560-200q17 0 28.5-11.5T600-240v-480q0-50 35-85t85-35q50 0 85 35t35 85v360q0 17-11.5 28.5T800-320q-17 0-28.5-11.5T760-360v-360q0-17-11.5-28.5T720-760q-17 0-28.5 11.5T680-720v480q0 50-35 85t-85 35q-50 0-85-35t-35-85v-480q0-17-11.5-28.5T400-760q-17 0-28.5 11.5T360-720v480q0 50-35 85t-85 35Z"/></svg>`,
 })
-export class MsrNestTrueRadiantIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrNestTrueRadiantIconComponent {}

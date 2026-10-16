@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-wifi-device-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M280-200q-33 0-56.5-23.5T200-280v-400q0-33 23.5-56.5T280-760h400q33 0 56.5 23.5T760-680v400q0 33-23.5 56.5T680-200H280Zm0 80h400q66 0 113-47t47-113v-400q0-66-47-113t-113-47H280q-66 0-113 47t-47 113v400q0 66 47 113t113 47Zm200-460q-45 0-86 14.5T320-525q-13 10-29 10t-27-11q-12-12-12.5-28.5T263-582q43-38 100.5-58T480-660q58 0 116.5 21T698-580q11 11 10.5 26.5T696-526q-11 11-27 11.5t-28-9.5q-33-27-74-41.5T480-580Zm0 160q-11 0-21.5 3t-20.5 8q-21 11-37.5 6T375-420q-9-12-8.5-26t12.5-22q23-15 49-23.5t53-8.5q27 0 52.5 8t48.5 23q12 8 12.5 22.5T586-420q-9 12-25.5 17t-37.5-6q-10-5-21-8t-22-3Zm-28.5 128.5Q440-303 440-320t11.5-28.5Q463-360 480-360t28.5 11.5Q520-337 520-320t-11.5 28.5Q497-280 480-280t-28.5-11.5ZM480-480Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M280-200q-33 0-56.5-23.5T200-280v-400q0-33 23.5-56.5T280-760h400q33 0 56.5 23.5T760-680v400q0 33-23.5 56.5T680-200H280Zm0 80h400q66 0 113-47t47-113v-400q0-66-47-113t-113-47H280q-66 0-113 47t-47 113v400q0 66 47 113t113 47Zm200-460q-45 0-86 14.5T320-525q-13 10-29 10t-27-11q-12-12-12.5-28.5T263-582q43-38 100.5-58T480-660q58 0 116.5 21T698-580q11 11 10.5 26.5T696-526q-11 11-27 11.5t-28-9.5q-33-27-74-41.5T480-580Zm0 160q-11 0-21.5 3t-20.5 8q-21 11-37.5 6T375-420q-9-12-8.5-26t12.5-22q23-15 49-23.5t53-8.5q27 0 52.5 8t48.5 23q12 8 12.5 22.5T586-420q-9 12-25.5 17t-37.5-6q-10-5-21-8t-22-3Zm-28.5 128.5Q440-303 440-320t11.5-28.5Q463-360 480-360t28.5 11.5Q520-337 520-320t-11.5 28.5Q497-280 480-280t-28.5-11.5ZM480-480Z"/></svg>`,
 })
-export class MsrWifiDeviceIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrWifiDeviceIconComponent {}

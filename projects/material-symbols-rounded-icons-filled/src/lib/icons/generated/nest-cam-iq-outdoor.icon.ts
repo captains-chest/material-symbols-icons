@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrfIconHostDirective } from '../../shared/msrf-icon-host.directive';
 import { MsrfIconSvgDirective } from '../../shared/msrf-icon-svg.directive';
 
 @Component({
   selector: 'msrf-nest-cam-iq-outdoor-icon',
   imports: [MsrfIconSvgDirective],
-  hostDirectives: [MsrfIconHostDirective],
-  styles: [`
-    :host.msrf-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msrf-icon)) {
-      inline-size: var(--msrf-icon-size, 1em);
-      block-size: var(--msrf-icon-size, 1em);
-    }
-
-    .msrf-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrfIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M563-150q-11 13-27.5 14.5T506-145L353-273q-50-42-72-102t-11-123l-56-47q-12-11-13.5-26.5T209-600h-49v80q0 33-23.5 56.5T80-440v-400q33 0 56.5 23.5T160-760v80h115l62-75q11-13 27.5-14.5T394-760l55 46q61-23 124-12t113 53l153 128q13 11 14.5 27.5T844-489L563-150Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrfIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M563-150q-11 13-27.5 14.5T506-145L353-273q-50-42-72-102t-11-123l-56-47q-12-11-13.5-26.5T209-600h-49v80q0 33-23.5 56.5T80-440v-400q33 0 56.5 23.5T160-760v80h115l62-75q11-13 27.5-14.5T394-760l55 46q61-23 124-12t113 53l153 128q13 11 14.5 27.5T844-489L563-150Z"/></svg>`,
 })
-export class MsrfNestCamIqOutdoorIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrfNestCamIqOutdoorIconComponent {}

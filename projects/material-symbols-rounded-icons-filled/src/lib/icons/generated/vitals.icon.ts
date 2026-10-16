@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrfIconHostDirective } from '../../shared/msrf-icon-host.directive';
 import { MsrfIconSvgDirective } from '../../shared/msrf-icon-svg.directive';
 
 @Component({
   selector: 'msrf-vitals-icon',
   imports: [MsrfIconSvgDirective],
-  hostDirectives: [MsrfIconHostDirective],
-  styles: [`
-    :host.msrf-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msrf-icon)) {
-      inline-size: var(--msrf-icon-size, 1em);
-      block-size: var(--msrf-icon-size, 1em);
-    }
-
-    .msrf-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrfIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 0 24 24'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M9 20q-.475 0-.85-.275t-.55-.7L5.3 13H2q-.425 0-.712-.288Q1 12.425 1 12t.288-.713Q1.575 11 2 11h4q.325 0 .562.175.238.175.363.475L9 17.1l4.6-12.125q.175-.425.55-.7Q14.525 4 15 4t.85.275q.375.275.55.7L18.7 11H22q.425 0 .712.287.288.288.288.713t-.288.712Q22.425 13 22 13h-4q-.325 0-.562-.175-.238-.175-.363-.475L15 6.9l-4.6 12.125q-.175.425-.55.7Q9.475 20 9 20Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrfIconSvg focusable="false" viewBox="0 0 24 24"><path d="M9 20q-.475 0-.85-.275t-.55-.7L5.3 13H2q-.425 0-.712-.288Q1 12.425 1 12t.288-.713Q1.575 11 2 11h4q.325 0 .562.175.238.175.363.475L9 17.1l4.6-12.125q.175-.425.55-.7Q14.525 4 15 4t.85.275q.375.275.55.7L18.7 11H22q.425 0 .712.287.288.288.288.713t-.288.712Q22.425 13 22 13h-4q-.325 0-.562-.175-.238-.175-.363-.475L15 6.9l-4.6 12.125q-.175.425-.55.7Q9.475 20 9 20Z"/></svg>`,
 })
-export class MsrfVitalsIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrfVitalsIconComponent {}

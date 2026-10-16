@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-restore-page-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M388-530q17-18 41-29t51-11q54 0 92 38t38 92q0 54-38 92t-92 38q-36 0-65.5-18T368-375q-6-11-17.5-14.5T328-388q-12 5-16.5 17.5T314-347q24 44 68 70.5t98 26.5q78 0 134-56t56-134q0-78-56-134t-134-56q-38 0-71 14t-59 38v-32q0-13-8.5-21.5T320-640q-13 0-21.5 8.5T290-610v110q0 13 8.5 21.5T320-470h110q13 0 21.5-8.5T460-500q0-13-8.5-21.5T430-530h-42ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h287q16 0 30.5 6t25.5 17l194 194q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T720-80H240Zm0-80h480v-446L526-800H240v640Zm0 0v-640 640Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M388-530q17-18 41-29t51-11q54 0 92 38t38 92q0 54-38 92t-92 38q-36 0-65.5-18T368-375q-6-11-17.5-14.5T328-388q-12 5-16.5 17.5T314-347q24 44 68 70.5t98 26.5q78 0 134-56t56-134q0-78-56-134t-134-56q-38 0-71 14t-59 38v-32q0-13-8.5-21.5T320-640q-13 0-21.5 8.5T290-610v110q0 13 8.5 21.5T320-470h110q13 0 21.5-8.5T460-500q0-13-8.5-21.5T430-530h-42ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h287q16 0 30.5 6t25.5 17l194 194q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T720-80H240Zm0-80h480v-446L526-800H240v640Zm0 0v-640 640Z"/></svg>`,
 })
-export class MsrRestorePageIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrRestorePageIconComponent {}
