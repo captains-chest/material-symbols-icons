@@ -8,7 +8,7 @@ Browse all icons in the Storybook catalog: https://icons.captains-chest.com
 
 ```ts
 import { Component } from '@angular/core';
-import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-icons';
+import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-icons/home';
 
 @Component({
   imports: [MsrHomeIconComponent],
@@ -18,6 +18,10 @@ import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-i
 })
 export class DemoComponent {}
 ```
+
+Import each icon from its own subpath: the icon's file name, which is the kebab-case part of its selector (`<msr-arrow-back-icon>` → `@captains-chest/material-symbols-rounded-icons/arrow-back`). Subpath imports keep `ng serve` fast and memory-light, speed up production builds, and let icons used only on lazy routes stay in lazy chunks. They need no `angular.json` changes.
+
+The package root still exports every icon (`import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-icons'`), so existing imports keep working. The root is one large bundle, though, so the dev server and production builds process all icons. Root and subpath imports can be mixed while you migrate.
 
 Each icon component supports an optional `ariaLabel` input. Bind it in templates, or set it with `ComponentRef.setInput('ariaLabel', …)` / `NgComponentOutlet` inputs:
 
