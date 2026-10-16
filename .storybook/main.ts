@@ -1,7 +1,8 @@
 import type { StorybookConfig } from '@storybook/angular';
+import type { StorybookConfigVite } from '@storybook/builder-vite';
 import { mergeConfig, type UserConfig } from 'vite';
 
-const config: StorybookConfig = {
+const config: StorybookConfig & StorybookConfigVite = {
   stories: ['../stories/**/*.stories.ts'],
   addons: ['@storybook/addon-a11y'],
   framework: {
