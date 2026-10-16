@@ -6,24 +6,6 @@ import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
   selector: 'msr-redo-icon',
   imports: [MsrIconSvgDirective],
   hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
   template: `<svg
   msrIconSvg
   focusable="false"
