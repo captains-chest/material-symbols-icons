@@ -141,3 +141,21 @@ works in production builds.
    checkout with both variants' paths, and replace `ls-tree` + checkout with a single batched blob fetch. That targets ~95% of the
    548 s.
 4. Native TypeScript: TS 7 (5×) or tsc-rs (12×) make a plain typecheck faster, but there is no such step today, and neither can replace TypeScript inside ng-packagr or `ngc`. tsc-rs is also 2 weeks old and LLM-written, so I'd not adopt it. Revisit TS 7 when Angular supports it.
+
+---
+
+# Round 2 (PR #27 follow-up)
+
+Same rules and method as above. Status: in progress. TODO marks numbers that aren't measured yet.
+
+## exp/svg-cache: faster icon generation
+
+TODO
+
+## Ideas that keep the usage contract
+
+TODO
+
+## Prototypes
+
+TODO
