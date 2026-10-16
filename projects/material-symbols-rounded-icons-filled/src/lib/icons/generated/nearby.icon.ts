@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrfIconHostDirective } from '../../shared/msrf-icon-host.directive';
 import { MsrfIconSvgDirective } from '../../shared/msrf-icon-svg.directive';
 
 @Component({
   selector: 'msrf-nearby-icon',
   imports: [MsrfIconSvgDirective],
-  hostDirectives: [MsrfIconHostDirective],
-  styles: [`
-    :host.msrf-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msrf-icon)) {
-      inline-size: var(--msrf-icon-size, 1em);
-      block-size: var(--msrf-icon-size, 1em);
-    }
-
-    .msrf-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrfIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M452-332 332-452q-12-12-12-28t12-28l120-120q12-12 28-12t28 12l120 120q12 12 12 28t-12 28L508-332q-12 12-28 12t-28-12Zm84 227q-11 11-26 17t-30 6q-15 0-30-6t-26-17L105-424q-11-11-17-26t-6-30q0-15 6-30t17-26l318-318q12-12 26.5-18t30.5-6q16 0 30.5 6t26.5 18l318 318q11 11 17 26t6 30q0 15-6 30t-17 26L536-105Zm-56-87 288-288-288-288-288 288 288 288Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrfIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M452-332 332-452q-12-12-12-28t12-28l120-120q12-12 28-12t28 12l120 120q12 12 12 28t-12 28L508-332q-12 12-28 12t-28-12Zm84 227q-11 11-26 17t-30 6q-15 0-30-6t-26-17L105-424q-11-11-17-26t-6-30q0-15 6-30t17-26l318-318q12-12 26.5-18t30.5-6q16 0 30.5 6t26.5 18l318 318q11 11 17 26t6 30q0 15-6 30t-17 26L536-105Zm-56-87 288-288-288-288-288 288 288 288Z"/></svg>`,
 })
-export class MsrfNearbyIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrfNearbyIconComponent {}

@@ -17,7 +17,7 @@ import { MsrHomeIconComponent } from '@captains-chest/material-symbols-rounded-i
 export class DemoComponent {}
 ```
 
-Each icon component supports optional `ariaLabel` input:
+Each icon component supports an optional `ariaLabel` input. Bind it in templates, or set it with `ComponentRef.setInput('ariaLabel', …)` / `NgComponentOutlet` inputs:
 
 ```html
 <msr-home-icon [ariaLabel]="'Home'" />
@@ -62,7 +62,19 @@ To opt into filling a sized parent, use consumer CSS:
 }
 ```
 
-No package stylesheet import is required for baseline rendering.
+No package stylesheet import is required for baseline rendering. The base styles are shared by all icons: the first rendered icon adds one `<style id="msr-icon-styles">` element to `document.head` (once per page or SSR request). It uses the `CSP_NONCE` value when your app provides one.
+
+Because these styles are global, they don't reach into components that use `ViewEncapsulation.ShadowDom`. If you render icons inside a shadow root, include the exported `MSR_ICON_STYLES` string in that component's styles:
+
+```ts
+import { MSR_ICON_STYLES } from '@captains-chest/material-symbols-rounded-icons';
+
+@Component({
+  encapsulation: ViewEncapsulation.ShadowDom,
+  styles: [MSR_ICON_STYLES],
+  // ...
+})
+```
 
 ## Angular compatibility matrix (`@captains-chest/material-symbols-rounded-icons`)
 

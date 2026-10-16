@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-nest-locator-tag-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 0 24 24'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M12 22q-2.925 0-4.962-2.038Q5 17.925 5 15q0-2.4 1.4-4.225Q7.8 8.95 10 8.3V3q0-.425.288-.713Q10.575 2 11 2h2q.425 0 .713.287Q14 2.575 14 3v5.3q2.2.65 3.6 2.475Q19 12.6 19 15q0 2.925-2.038 4.962Q14.925 22 12 22Zm0-2q2.075 0 3.538-1.462Q17 17.075 17 15q0-2.075-1.462-3.538Q14.075 10 12 10q-2.075 0-3.537 1.462Q7 12.925 7 15q0 2.075 1.463 3.538Q9.925 20 12 20Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 0 24 24"><path d="M12 22q-2.925 0-4.962-2.038Q5 17.925 5 15q0-2.4 1.4-4.225Q7.8 8.95 10 8.3V3q0-.425.288-.713Q10.575 2 11 2h2q.425 0 .713.287Q14 2.575 14 3v5.3q2.2.65 3.6 2.475Q19 12.6 19 15q0 2.925-2.038 4.962Q14.925 22 12 22Zm0-2q2.075 0 3.538-1.462Q17 17.075 17 15q0-2.075-1.462-3.538Q14.075 10 12 10q-2.075 0-3.537 1.462Q7 12.925 7 15q0 2.075 1.463 3.538Q9.925 20 12 20Z"/></svg>`,
 })
-export class MsrNestLocatorTagIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrNestLocatorTagIconComponent {}

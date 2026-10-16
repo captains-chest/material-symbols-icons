@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-call-missed-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M200-543v143q0 17-11.5 28.5T160-360q-17 0-28.5-11.5T120-400v-240q0-17 11.5-28.5T160-680h240q17 0 28.5 11.5T440-640q0 17-11.5 28.5T400-600H256l224 224 276-276q12-12 28-11.5t28 12.5q11 12 11.5 28T812-595L537-320q-12 12-27 18t-30 6q-15 0-30-6t-27-18L200-543Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M200-543v143q0 17-11.5 28.5T160-360q-17 0-28.5-11.5T120-400v-240q0-17 11.5-28.5T160-680h240q17 0 28.5 11.5T440-640q0 17-11.5 28.5T400-600H256l224 224 276-276q12-12 28-11.5t28 12.5q11 12 11.5 28T812-595L537-320q-12 12-27 18t-30 6q-15 0-30-6t-27-18L200-543Z"/></svg>`,
 })
-export class MsrCallMissedIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrCallMissedIconComponent {}

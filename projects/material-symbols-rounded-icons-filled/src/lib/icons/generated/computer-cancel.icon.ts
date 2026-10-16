@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrfIconHostDirective } from '../../shared/msrf-icon-host.directive';
 import { MsrfIconSvgDirective } from '../../shared/msrf-icon-svg.directive';
 
 @Component({
   selector: 'msrf-computer-cancel-icon',
   imports: [MsrfIconSvgDirective],
-  hostDirectives: [MsrfIconHostDirective],
-  styles: [`
-    :host.msrf-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msrf-icon)) {
-      inline-size: var(--msrf-icon-size, 1em);
-      block-size: var(--msrf-icon-size, 1em);
-    }
-
-    .msrf-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrfIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="m480-484 75 76q12 12 28.5 12t28.5-12q12-12 12-28.5T612-465l-76-75 76-75q12-12 12-28.5T612-672q-12-12-28.5-12T555-672l-75 76-75-76q-12-12-28.5-12T348-672q-12 12-12 28.5t12 28.5l76 75-76 75q-12 12-12 28.5t12 28.5q12 12 28.5 12t28.5-12l75-76ZM80-120q-17 0-28.5-11.5T40-160q0-17 11.5-28.5T80-200h800q17 0 28.5 11.5T920-160q0 17-11.5 28.5T880-120H80Zm80-120q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrfIconSvg focusable="false" viewBox="0 -960 960 960"><path d="m480-484 75 76q12 12 28.5 12t28.5-12q12-12 12-28.5T612-465l-76-75 76-75q12-12 12-28.5T612-672q-12-12-28.5-12T555-672l-75 76-75-76q-12-12-28.5-12T348-672q-12 12-12 28.5t12 28.5l76 75-76 75q-12 12-12 28.5t12 28.5q12 12 28.5 12t28.5-12l75-76ZM80-120q-17 0-28.5-11.5T40-160q0-17 11.5-28.5T80-200h800q17 0 28.5 11.5T920-160q0 17-11.5 28.5T880-120H80Zm80-120q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Z"/></svg>`,
 })
-export class MsrfComputerCancelIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrfComputerCancelIconComponent {}

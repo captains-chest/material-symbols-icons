@@ -47,6 +47,7 @@ This runs:
 - deterministic generated-source verification
 - both library builds
 - smoke checks, including forbidden SVG pattern gates
+- SSR render tests for `ariaLabel` (template, `setInput`, `NgComponentOutlet`) and shared styles
 - npm pack dry-runs from `dist/material-symbols-rounded-icons`
 - npm pack dry-runs from `dist/material-symbols-rounded-icons-filled`
 

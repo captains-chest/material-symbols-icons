@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-money-range-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="m233-160 16 16q11 11 11 27.5T248-88q-11 11-28 11t-28-11l-84-84q-6-6-8.5-13T97-200q0-8 2.5-15t8.5-13l84-84q11-11 27.5-11t28.5 11q12 12 12 28.5T248-255l-15 15h494l-16-16q-11-11-11-27.5t12-28.5q11-11 28-11t28 11l84 84q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13l-84 84q-11 11-27.5 11T712-88q-12-12-12-28.5t12-28.5l15-15H233Zm247-360q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM200-400q-33 0-56.5-23.5T120-480v-320q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T840-800v320q0 33-23.5 56.5T760-400H200Zm80-80h400q0-33 23.5-56.5T760-560v-160q-33 0-56.5-23.5T680-800H280q0 33-23.5 56.5T200-720v160q33 0 56.5 23.5T280-480Zm-80 0v-320 320Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="m233-160 16 16q11 11 11 27.5T248-88q-11 11-28 11t-28-11l-84-84q-6-6-8.5-13T97-200q0-8 2.5-15t8.5-13l84-84q11-11 27.5-11t28.5 11q12 12 12 28.5T248-255l-15 15h494l-16-16q-11-11-11-27.5t12-28.5q11-11 28-11t28 11l84 84q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13l-84 84q-11 11-27.5 11T712-88q-12-12-12-28.5t12-28.5l15-15H233Zm247-360q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM200-400q-33 0-56.5-23.5T120-480v-320q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T840-800v320q0 33-23.5 56.5T760-400H200Zm80-80h400q0-33 23.5-56.5T760-560v-160q-33 0-56.5-23.5T680-800H280q0 33-23.5 56.5T200-720v160q33 0 56.5 23.5T280-480Zm-80 0v-320 320Z"/></svg>`,
 })
-export class MsrMoneyRangeIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrMoneyRangeIconComponent {}

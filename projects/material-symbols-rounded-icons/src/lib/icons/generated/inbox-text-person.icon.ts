@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-inbox-text-person-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M720-320q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm3 40q28 0 55 5.5t53 17.5q20 9 34.5 25.5T880-193q0 14-9.5 23.5T847-160H592q-14 0-23-9.5t-9-23.5q0-22 14-39t34-25q27-11 56.5-17t58.5-6ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v161q0 17-11.5 28T800-560q-17 0-28.5-11.5T760-600v-160H200v360h142q12 0 21 5.5t14 14.5q11 17 24.5 28.5T432-332q11 5 17.5 15t6.5 22q0 21-17 33.5t-37 5.5q-26-8-45.5-26T320-320H200v120h216q17 0 28.5 11.5T456-160q0 17-11.5 28.5T416-120H200Zm0-80h253-253Zm120-410h320q17 0 28.5-11.5T680-650q0-17-11.5-28.5T640-690H320q-17 0-28.5 11.5T280-650q0 17 11.5 28.5T320-610Zm0 140h224q17 0 28.5-11.5T584-510q0-17-11.5-28.5T544-550H320q-17 0-28.5 11.5T280-510q0 17 11.5 28.5T320-470Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M720-320q-33 0-56.5-23.5T640-400q0-33 23.5-56.5T720-480q33 0 56.5 23.5T800-400q0 33-23.5 56.5T720-320Zm3 40q28 0 55 5.5t53 17.5q20 9 34.5 25.5T880-193q0 14-9.5 23.5T847-160H592q-14 0-23-9.5t-9-23.5q0-22 14-39t34-25q27-11 56.5-17t58.5-6ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v161q0 17-11.5 28T800-560q-17 0-28.5-11.5T760-600v-160H200v360h142q12 0 21 5.5t14 14.5q11 17 24.5 28.5T432-332q11 5 17.5 15t6.5 22q0 21-17 33.5t-37 5.5q-26-8-45.5-26T320-320H200v120h216q17 0 28.5 11.5T456-160q0 17-11.5 28.5T416-120H200Zm0-80h253-253Zm120-410h320q17 0 28.5-11.5T680-650q0-17-11.5-28.5T640-690H320q-17 0-28.5 11.5T280-650q0 17 11.5 28.5T320-610Zm0 140h224q17 0 28.5-11.5T584-510q0-17-11.5-28.5T544-550H320q-17 0-28.5 11.5T280-510q0 17 11.5 28.5T320-470Z"/></svg>`,
 })
-export class MsrInboxTextPersonIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrInboxTextPersonIconComponent {}

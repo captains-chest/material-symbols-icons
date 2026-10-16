@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-door-sensor-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M360-360v-400 560-160Zm-80 40h80v120h240v-560H360v360h-80v-360q0-33 23.5-56.5T360-840h240q33 0 56.5 23.5T680-760v560q0 33-23.5 56.5T600-120H360q-33 0-56.5-23.5T280-200v-120Zm200-240q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm320-40q-17 0-28.5-11.5T760-640v-160q0-17 11.5-28.5T800-840q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600ZM200-320q-17 0-28.5-11.5T160-360q0-17 11.5-28.5T200-400h280q17 0 28.5 11.5T520-360q0 17-11.5 28.5T480-320H200Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M360-360v-400 560-160Zm-80 40h80v120h240v-560H360v360h-80v-360q0-33 23.5-56.5T360-840h240q33 0 56.5 23.5T680-760v560q0 33-23.5 56.5T600-120H360q-33 0-56.5-23.5T280-200v-120Zm200-240q17 0 28.5-11.5T520-600q0-17-11.5-28.5T480-640q-17 0-28.5 11.5T440-600q0 17 11.5 28.5T480-560Zm320-40q-17 0-28.5-11.5T760-640v-160q0-17 11.5-28.5T800-840q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600ZM200-320q-17 0-28.5-11.5T160-360q0-17 11.5-28.5T200-400h280q17 0 28.5 11.5T520-360q0 17-11.5 28.5T480-320H200Z"/></svg>`,
 })
-export class MsrDoorSensorIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrDoorSensorIconComponent {}

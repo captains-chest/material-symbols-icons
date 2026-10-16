@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-brunch-dining-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M80-160h560v40q0 17-11.5 28.5T600-80H120q-17 0-28.5-11.5T80-120v-40Zm0-80v-40q0-17 11.5-28.5T120-320h160v-40q0-17 11.5-28.5T320-400h80q17 0 28.5 11.5T440-360v40h160q17 0 28.5 11.5T640-280v40H80Zm640-84q-36-41-58-81t-22-97v-338q0-17 11.5-28.5T680-880h160q17 0 28.5 11.5T880-840v338q0 57-21.5 97.5T800-324v164h40q17 0 28.5 11.5T880-120q0 17-11.5 28.5T840-80h-80q-17 0-28.5-11.5T720-120v-204Zm0-316h80v-160h-80v160Zm40 242q18-21 29-48t11-56v-58h-80v58q0 29 10 56t30 48Zm0 0Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M80-160h560v40q0 17-11.5 28.5T600-80H120q-17 0-28.5-11.5T80-120v-40Zm0-80v-40q0-17 11.5-28.5T120-320h160v-40q0-17 11.5-28.5T320-400h80q17 0 28.5 11.5T440-360v40h160q17 0 28.5 11.5T640-280v40H80Zm640-84q-36-41-58-81t-22-97v-338q0-17 11.5-28.5T680-880h160q17 0 28.5 11.5T880-840v338q0 57-21.5 97.5T800-324v164h40q17 0 28.5 11.5T880-120q0 17-11.5 28.5T840-80h-80q-17 0-28.5-11.5T720-120v-204Zm0-316h80v-160h-80v160Zm40 242q18-21 29-48t11-56v-58h-80v58q0 29 10 56t30 48Zm0 0Z"/></svg>`,
 })
-export class MsrBrunchDiningIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrBrunchDiningIconComponent {}

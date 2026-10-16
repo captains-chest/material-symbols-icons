@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-22mp-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M320-560v-40h80q17 0 28.5-11.5T440-640v-60q0-17-11.5-28.5T400-740H290q-13 0-21.5 8.5T260-710q0 13 8.5 21.5T290-680h90v40h-80q-17 0-28.5 11.5T260-600v70q0 13 8.5 21.5T290-500h120q13 0 21.5-8.5T440-530q0-13-8.5-21.5T410-560h-90Zm260 0v-40h80q17 0 28.5-11.5T700-640v-60q0-17-11.5-28.5T660-740H550q-13 0-21.5 8.5T520-710q0 13 8.5 21.5T550-680h90v40h-80q-17 0-28.5 11.5T520-600v70q0 13 8.5 21.5T550-500h120q13 0 21.5-8.5T700-530q0-13-8.5-21.5T670-560h-90ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Zm100 360h40v90q0 13 8.5 21.5T370-280q13 0 21.5-8.5T400-310v-90h40v150q0 13 8.5 21.5T470-220q13 0 21.5-8.5T500-250v-170q0-17-11.5-28.5T460-460H280q-17 0-28.5 11.5T240-420v170q0 13 8.5 21.5T270-220q13 0 21.5-8.5T300-250v-150Zm300 120h80q17 0 28.5-11.5T720-320v-100q0-17-11.5-28.5T680-460H570q-13 0-21.5 8.5T540-430v180q0 13 8.5 21.5T570-220q13 0 21.5-8.5T600-250v-30Zm0-60v-60h60v60h-60Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M320-560v-40h80q17 0 28.5-11.5T440-640v-60q0-17-11.5-28.5T400-740H290q-13 0-21.5 8.5T260-710q0 13 8.5 21.5T290-680h90v40h-80q-17 0-28.5 11.5T260-600v70q0 13 8.5 21.5T290-500h120q13 0 21.5-8.5T440-530q0-13-8.5-21.5T410-560h-90Zm260 0v-40h80q17 0 28.5-11.5T700-640v-60q0-17-11.5-28.5T660-740H550q-13 0-21.5 8.5T520-710q0 13 8.5 21.5T550-680h90v40h-80q-17 0-28.5 11.5T520-600v70q0 13 8.5 21.5T550-500h120q13 0 21.5-8.5T700-530q0-13-8.5-21.5T670-560h-90ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Zm100 360h40v90q0 13 8.5 21.5T370-280q13 0 21.5-8.5T400-310v-90h40v150q0 13 8.5 21.5T470-220q13 0 21.5-8.5T500-250v-170q0-17-11.5-28.5T460-460H280q-17 0-28.5 11.5T240-420v170q0 13 8.5 21.5T270-220q13 0 21.5-8.5T300-250v-150Zm300 120h80q17 0 28.5-11.5T720-320v-100q0-17-11.5-28.5T680-460H570q-13 0-21.5 8.5T540-430v180q0 13 8.5 21.5T570-220q13 0 21.5-8.5T600-250v-30Zm0-60v-60h60v60h-60Z"/></svg>`,
 })
-export class Msr22mpIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class Msr22mpIconComponent {}

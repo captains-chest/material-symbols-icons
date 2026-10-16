@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-exposure-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560L200-200Zm380-120h-50q-13 0-21.5-8.5T500-350q0-13 8.5-21.5T530-380h50v-50q0-13 8.5-21.5T610-460q13 0 21.5 8.5T640-430v50h50q13 0 21.5 8.5T720-350q0 13-8.5 21.5T690-320h-50v50q0 13-8.5 21.5T610-240q-13 0-21.5-8.5T580-270v-50ZM410-620q13 0 21.5-8.5T440-650q0-13-8.5-21.5T410-680H270q-13 0-21.5 8.5T240-650q0 13 8.5 21.5T270-620h140Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560L200-200Zm380-120h-50q-13 0-21.5-8.5T500-350q0-13 8.5-21.5T530-380h50v-50q0-13 8.5-21.5T610-460q13 0 21.5 8.5T640-430v50h50q13 0 21.5 8.5T720-350q0 13-8.5 21.5T690-320h-50v50q0 13-8.5 21.5T610-240q-13 0-21.5-8.5T580-270v-50ZM410-620q13 0 21.5-8.5T440-650q0-13-8.5-21.5T410-680H270q-13 0-21.5 8.5T240-650q0 13 8.5 21.5T270-620h140Z"/></svg>`,
 })
-export class MsrExposureIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrExposureIconComponent {}

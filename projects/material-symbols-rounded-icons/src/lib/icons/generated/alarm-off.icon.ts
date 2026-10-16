@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-alarm-off-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M770-299q-16-5-23-19.5t-2-29.5q8-23 11.5-44.5T760-436q0-118-81.5-201T480-720q-26 0-47.5 3T392-707q-14 5-27.5-2.5T346-733q-5-16 3-31t25-20q25-8 51.5-12t54.5-4q76 0 141.5 28.5t114 78Q784-644 812-577.5T840-436q0 26-4.5 53T822-328q-5 17-20.5 25.5T770-299Zm-62-483q-11-11-11-28t11-28q11-11 28-11t28 11l114 114q11 11 11 28t-11 28q-11 11-28 11t-28-11L708-782ZM480-80q-74 0-139.5-28T226-184q-49-48-77.5-113T120-436q0-62 18.5-116.5T192-652l-34-34-20 20q-11 11-28 11t-28-11q-11-11-11-28t11-28l20-20-46-46q-11-11-11-28t11-28q11-11 28-11t28 11l736 736q11 11 11 28t-11 28q-11 11-28 11t-28-11l-98-98q-45 33-99.5 51.5T480-80Zm0-79q42 0 82-13t74-36L248-594q-23 35-35.5 75.5T200-436q0 116 82 196.5T480-159Zm-38-242Zm114-114Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M770-299q-16-5-23-19.5t-2-29.5q8-23 11.5-44.5T760-436q0-118-81.5-201T480-720q-26 0-47.5 3T392-707q-14 5-27.5-2.5T346-733q-5-16 3-31t25-20q25-8 51.5-12t54.5-4q76 0 141.5 28.5t114 78Q784-644 812-577.5T840-436q0 26-4.5 53T822-328q-5 17-20.5 25.5T770-299Zm-62-483q-11-11-11-28t11-28q11-11 28-11t28 11l114 114q11 11 11 28t-11 28q-11 11-28 11t-28-11L708-782ZM480-80q-74 0-139.5-28T226-184q-49-48-77.5-113T120-436q0-62 18.5-116.5T192-652l-34-34-20 20q-11 11-28 11t-28-11q-11-11-11-28t11-28l20-20-46-46q-11-11-11-28t11-28q11-11 28-11t28 11l736 736q11 11 11 28t-11 28q-11 11-28 11t-28-11l-98-98q-45 33-99.5 51.5T480-80Zm0-79q42 0 82-13t74-36L248-594q-23 35-35.5 75.5T200-436q0 116 82 196.5T480-159Zm-38-242Zm114-114Z"/></svg>`,
 })
-export class MsrAlarmOffIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrAlarmOffIconComponent {}

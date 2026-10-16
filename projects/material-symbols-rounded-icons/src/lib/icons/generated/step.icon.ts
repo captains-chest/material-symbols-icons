@@ -1,40 +1,11 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MsrIconHostDirective } from '../../shared/msr-icon-host.directive';
 import { MsrIconSvgDirective } from '../../shared/msr-icon-svg.directive';
 
 @Component({
   selector: 'msr-step-icon',
   imports: [MsrIconSvgDirective],
-  hostDirectives: [MsrIconHostDirective],
-  styles: [`
-    :host.msr-icon {
-      display: inline-flex;
-      flex: 0 0 auto;
-    }
-
-    :host(:where(.msr-icon)) {
-      inline-size: var(--msr-icon-size, 1em);
-      block-size: var(--msr-icon-size, 1em);
-    }
-
-    .msr-icon-svg {
-      display: block;
-      inline-size: 100%;
-      block-size: 100%;
-      fill: currentColor;
-    }
-  `],
-  template: `<svg
-  msrIconSvg
-  focusable="false"
-  [attr.viewBox]="'0 -960 960 960'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  <path d="M760-360q-51 0-85.5-34.5T640-480q0-51 34.5-85.5T760-600q51 0 85.5 34.5T880-480q0 51-34.5 85.5T760-360Zm-353-80H120q-17 0-28.5-11.5T80-480q0-17 11.5-28.5T120-520h287l-75-76q-11-11-11.5-27.5T332-652q11-11 28-11t28 11l144 144q12 12 12 28t-12 28L388-308q-12 12-28 11.5T332-309q-11-12-11.5-28t11.5-28l75-75Z"/>
-</svg>`,
+  hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }],
+  template: `<svg msrIconSvg focusable="false" viewBox="0 -960 960 960"><path d="M760-360q-51 0-85.5-34.5T640-480q0-51 34.5-85.5T760-600q51 0 85.5 34.5T880-480q0 51-34.5 85.5T760-360Zm-353-80H120q-17 0-28.5-11.5T80-480q0-17 11.5-28.5T120-520h287l-75-76q-11-11-11.5-27.5T332-652q11-11 28-11t28 11l144 144q12 12 12 28t-12 28L388-308q-12 12-28 11.5T332-309q-11-12-11.5-28t11.5-28l75-75Z"/></svg>`,
 })
-export class MsrStepIconComponent {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class MsrStepIconComponent {}
