@@ -27,12 +27,20 @@
   },
   "files": [
     "fesm2022/*.mjs",
+    "esm2022/**/*.js",
+    "esm2022/**/*.d.ts",
     "types/**/*.d.ts",
     "README.md",
     "LICENSE",
     "LICENSE-THIRD-PARTY.md",
     "package.json"
   ],
+  "exports": {
+    "./*": {
+      "types": "./esm2022/lib/icons/generated/*.icon.d.ts",
+      "default": "./esm2022/lib/icons/generated/*.icon.js"
+    }
+  },
   "peerDependencies": {
     "@angular/common": ">=17.0.0",
     "@angular/core": ">=17.0.0"

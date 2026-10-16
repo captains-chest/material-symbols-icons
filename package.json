@@ -4,8 +4,8 @@
   "scripts": {
     "ng": "ng",
     "build": "ng build",
-    "build:lib:outline": "ng build material-symbols-rounded-icons && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons",
-    "build:lib:filled": "ng build material-symbols-rounded-icons-filled && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons-filled",
+    "build:lib:outline": "ng build material-symbols-rounded-icons && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons && node tools/icons/emit-icon-entry-points.mjs --project projects/material-symbols-rounded-icons --dist dist/material-symbols-rounded-icons",
+    "build:lib:filled": "ng build material-symbols-rounded-icons-filled && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons-filled && node tools/icons/emit-icon-entry-points.mjs --project projects/material-symbols-rounded-icons-filled --dist dist/material-symbols-rounded-icons-filled",
     "build:lib": "vp run lib",
     "sync:icons": "node tools/icons/sync-material-symbols-rounded.mjs --target all",
     "sync:icons:outline": "node tools/icons/sync-material-symbols-rounded.mjs --target outline",
