@@ -63,13 +63,25 @@ const UPSTREAM_POLICY = {
 function validateUpstreamPolicy(config) {
   const violations = [];
   if (config.owner !== UPSTREAM_POLICY.owner) {
-    violations.push({ code: 'unexpected-owner', expected: UPSTREAM_POLICY.owner, actual: config.owner });
+    violations.push({
+      code: 'unexpected-owner',
+      expected: UPSTREAM_POLICY.owner,
+      actual: config.owner,
+    });
   }
   if (config.repo !== UPSTREAM_POLICY.repo) {
-    violations.push({ code: 'unexpected-repo', expected: UPSTREAM_POLICY.repo, actual: config.repo });
+    violations.push({
+      code: 'unexpected-repo',
+      expected: UPSTREAM_POLICY.repo,
+      actual: config.repo,
+    });
   }
   if (!UPSTREAM_POLICY.refPattern.test(config.ref ?? '')) {
-    violations.push({ code: 'mutable-ref', expected: '40-character lowercase git commit SHA', actual: config.ref });
+    violations.push({
+      code: 'mutable-ref',
+      expected: '40-character lowercase git commit SHA',
+      actual: config.ref,
+    });
   }
   if (violations.length === 0) return;
 
@@ -102,7 +114,10 @@ async function clonePromisorRepo(config) {
   let lastError;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      await runGit(['clone', '--depth', '1', '--filter=blob:none', '--no-checkout', repoUrl, tmp], repoRoot);
+      await runGit(
+        ['clone', '--depth', '1', '--filter=blob:none', '--no-checkout', repoUrl, tmp],
+        repoRoot,
+      );
       return tmp;
     } catch (error) {
       lastError = error;
@@ -144,12 +159,17 @@ function parseCatFileBatch(buffer) {
 
 function runGitWithStdin(args, cwd, input, { captureStdout = false } = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn('git', args, { cwd, stdio: ['pipe', captureStdout ? 'pipe' : 'ignore', 'inherit'] });
+    const child = spawn('git', args, {
+      cwd,
+      stdio: ['pipe', captureStdout ? 'pipe' : 'ignore', 'inherit'],
+    });
     const chunks = [];
     child.stdout?.on('data', (chunk) => chunks.push(chunk));
     child.on('error', reject);
     child.on('close', (code) =>
-      code === 0 ? resolve(Buffer.concat(chunks)) : reject(new Error(`git ${args.join(' ')} failed (exit ${code})`)),
+      code === 0
+        ? resolve(Buffer.concat(chunks))
+        : reject(new Error(`git ${args.join(' ')} failed (exit ${code})`)),
     );
     child.stdin.end(input);
   });
@@ -158,8 +178,14 @@ function runGitWithStdin(args, cwd, input, { captureStdout = false } = {}) {
 async function createSnapshot(config, targets, snapshotDir) {
   const tmp = await clonePromisorRepo(config);
   try {
-    await runGit(['fetch', '--quiet', '--depth', '1', '--filter=blob:none', '--no-tags', 'origin', config.ref], tmp);
-    const tree = await runGitRead(['ls-tree', '-r', '--format=%(objectname) %(path)', config.ref, 'symbols/web'], tmp);
+    await runGit(
+      ['fetch', '--quiet', '--depth', '1', '--filter=blob:none', '--no-tags', 'origin', config.ref],
+      tmp,
+    );
+    const tree = await runGitRead(
+      ['ls-tree', '-r', '--format=%(objectname) %(path)', config.ref, 'symbols/web'],
+      tmp,
+    );
 
     const suffixes = targets.map((target) => target.variant.fileSuffix);
     const wanted = [];
@@ -169,9 +195,11 @@ async function createSnapshot(config, targets, snapshotDir) {
       const filePath = line.slice(space + 1);
       const match = filePath.match(/^symbols\/web\/([^/]+)\/([^/]+)\/(.+)$/);
       if (!match || match[2] !== config.symbolFamily) continue;
-      if (suffixes.some((suffix) => match[3] === `${match[1]}${suffix}`)) wanted.push({ oid, filePath });
+      if (suffixes.some((suffix) => match[3] === `${match[1]}${suffix}`))
+        wanted.push({ oid, filePath });
     }
-    if (wanted.length === 0) throw new Error(`No upstream SVGs found for ${config.symbolFamily} at ${config.ref}`);
+    if (wanted.length === 0)
+      throw new Error(`No upstream SVGs found for ${config.symbolFamily} at ${config.ref}`);
 
     // One batched fetch of exactly the needed blobs; noop negotiation skips the commit walk.
     const oidList = `${wanted.map(({ oid }) => oid).join('\n')}\n`;
@@ -190,7 +218,9 @@ async function createSnapshot(config, targets, snapshotDir) {
       tmp,
       oidList,
     );
-    const blobs = parseCatFileBatch(await runGitWithStdin(['cat-file', '--batch'], tmp, oidList, { captureStdout: true }));
+    const blobs = parseCatFileBatch(
+      await runGitWithStdin(['cat-file', '--batch'], tmp, oidList, { captureStdout: true }),
+    );
     const sha = await runGitRead(['rev-parse', `${config.ref}^{commit}`], tmp);
     const committedAt = await runGitRead(['log', '-1', '--format=%cI', config.ref], tmp);
 
@@ -209,11 +239,17 @@ async function createSnapshot(config, targets, snapshotDir) {
       fileSuffixes: [...suffixes].sort(),
       files: wanted.map(({ filePath }) => filePath).sort(),
     };
-    await fs.writeFile(path.join(staging, 'snapshot.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    await fs.writeFile(
+      path.join(staging, 'snapshot.json'),
+      `${JSON.stringify(manifest, null, 2)}\n`,
+      'utf8',
+    );
     await fs.rm(snapshotDir, { recursive: true, force: true });
     await ensureDir(path.dirname(snapshotDir));
     await fs.rename(staging, snapshotDir);
-    console.log(`Created upstream SVG snapshot ${path.relative(repoRoot, snapshotDir) || snapshotDir} (${wanted.length} files)`);
+    console.log(
+      `Created upstream SVG snapshot ${path.relative(repoRoot, snapshotDir) || snapshotDir} (${wanted.length} files)`,
+    );
     return manifest;
   } finally {
     await fs.rm(tmp, { recursive: true, force: true });
@@ -235,7 +271,9 @@ async function loadSnapshot(config, targets) {
   try {
     const manifest = JSON.parse(await fs.readFile(path.join(snapshotDir, 'snapshot.json'), 'utf8'));
     if (isUsableSnapshot(manifest, config, targets)) {
-      console.log(`Using cached upstream SVG snapshot ${path.relative(repoRoot, snapshotDir) || snapshotDir}`);
+      console.log(
+        `Using cached upstream SVG snapshot ${path.relative(repoRoot, snapshotDir) || snapshotDir}`,
+      );
       return { dir: snapshotDir, manifest };
     }
   } catch {
@@ -270,7 +308,9 @@ async function clearGeneratedFiles(generatedDir) {
   await ensureDir(generatedDir);
   const existing = await fs.readdir(generatedDir);
   await Promise.all(
-    existing.filter((name) => name.endsWith('.ts')).map((name) => fs.unlink(path.join(generatedDir, name))),
+    existing
+      .filter((name) => name.endsWith('.ts'))
+      .map((name) => fs.unlink(path.join(generatedDir, name))),
   );
 }
 
@@ -305,7 +345,8 @@ async function generateForTarget(args, config, target, snapshot) {
   const discoveredOrRequested = await readIconList(args, snapshot, config, target);
   const selected = args.limit ? discoveredOrRequested.slice(0, args.limit) : discoveredOrRequested;
 
-  if (selected.length === 0) throw new Error(`No icons selected for generation for target: ${target.id}`);
+  if (selected.length === 0)
+    throw new Error(`No icons selected for generation for target: ${target.id}`);
 
   const collisions = new Map();
   for (const iconName of selected) {
@@ -313,7 +354,9 @@ async function generateForTarget(args, config, target, snapshot) {
     collisions.set(selector, (collisions.get(selector) ?? 0) + 1);
   }
 
-  const duplicates = [...collisions.entries()].filter(([, count]) => count > 1).map(([name]) => name);
+  const duplicates = [...collisions.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([name]) => name);
   if (duplicates.length > 0) {
     await writeLines(collisionReportPath, ['Selector collisions detected:', ...duplicates]);
     throw new Error(`Selector collision detected for ${target.id}. See ${collisionReportPath}`);
@@ -364,7 +407,9 @@ async function generateForTarget(args, config, target, snapshot) {
   }
 
   if (generated.length === 0) {
-    throw new Error(`No icons were generated for ${target.id}. Check variant suffix and upstream paths.`);
+    throw new Error(
+      `No icons were generated for ${target.id}. Check variant suffix and upstream paths.`,
+    );
   }
 
   if (missing.length > 0) {
@@ -374,7 +419,10 @@ async function generateForTarget(args, config, target, snapshot) {
   }
 
   const indexContent = `${generated
-    .map(({ fileName, className }) => `export { ${className} } from './generated/${fileName.replace(/\.ts$/, '')}';`)
+    .map(
+      ({ fileName, className }) =>
+        `export { ${className} } from './generated/${fileName.replace(/\.ts$/, '')}';`,
+    )
     .join('\n')}
 
 export const MSR_ICON_NAMES = [
@@ -387,7 +435,10 @@ export type MsrIconName = (typeof MSR_ICON_NAMES)[number];
   const componentMapContent = `import { Type } from '@angular/core';
 import { MsrIconName } from './index';
 ${generated
-  .map(({ fileName, className }) => `import { ${className} } from './generated/${fileName.replace(/\.ts$/, '')}';`)
+  .map(
+    ({ fileName, className }) =>
+      `import { ${className} } from './generated/${fileName.replace(/\.ts$/, '')}';`,
+  )
   .join('\n')}
 
 export const MSR_ICON_COMPONENTS: Type<unknown>[] = [
@@ -429,7 +480,9 @@ ${generated.map(({ iconName, className }) => `  '${iconName}': ${className},`).j
 
   console.log(
     `[${target.id}] Generated ${generated.length} icons from ${config.owner}/${config.repo}@${sha}` +
-      (missing.length > 0 ? ` (${missing.length} missing; see ${path.relative(repoRoot, missingReportPath)})` : ''),
+      (missing.length > 0
+        ? ` (${missing.length} missing; see ${path.relative(repoRoot, missingReportPath)})`
+        : ''),
   );
 }
 
@@ -447,7 +500,9 @@ async function main() {
     args.target === 'all' ? targets : targets.filter((target) => target.id === args.target);
 
   if (selectedTargets.length === 0) {
-    throw new Error(`Unknown target "${args.target}". Available targets: ${targets.map((t) => t.id).join(', ')}`);
+    throw new Error(
+      `Unknown target "${args.target}". Available targets: ${targets.map((t) => t.id).join(', ')}`,
+    );
   }
 
   const snapshot = await loadSnapshot(config, targets);

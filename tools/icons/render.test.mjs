@@ -8,13 +8,24 @@ import path from 'node:path';
 import { test } from 'vite-plus/test';
 import { pathToFileURL } from 'node:url';
 import { NgComponentOutlet } from '@angular/common';
-import { Component, CSP_NONCE, inject, provideZonelessChangeDetection, ViewContainerRef } from '@angular/core';
+import {
+  Component,
+  CSP_NONCE,
+  inject,
+  provideZonelessChangeDetection,
+  ViewContainerRef,
+} from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideServerRendering, renderApplication } from '@angular/platform-server';
 
 const variants = [
   { id: 'outline', dist: 'dist/material-symbols-rounded-icons', prefix: 'msr', classPrefix: 'Msr' },
-  { id: 'filled', dist: 'dist/material-symbols-rounded-icons-filled', prefix: 'msrf', classPrefix: 'Msrf' },
+  {
+    id: 'filled',
+    dist: 'dist/material-symbols-rounded-icons-filled',
+    prefix: 'msrf',
+    classPrefix: 'Msrf',
+  },
 ];
 
 async function loadPackage(distDir) {
@@ -111,10 +122,15 @@ for (const variant of variants) {
     })(class {});
     const { html } = await render(Root, [{ provide: CSP_NONCE, useValue: 'test-nonce' }]);
 
-    const styles = html.match(new RegExp(`<style[^>]*id="${styleId}"[^>]*>[^<]*</style>`, 'g')) ?? [];
+    const styles =
+      html.match(new RegExp(`<style[^>]*id="${styleId}"[^>]*>[^<]*</style>`, 'g')) ?? [];
     assert.equal(styles.length, 1);
     assert.match(styles[0], /nonce="test-nonce"/);
     assert.ok(styles[0].includes(pkg[`${variant.prefix.toUpperCase()}_ICON_STYLES`]));
-    assert.doesNotMatch(html, /_ngcontent-|_nghost-/, 'icons no longer carry emulated component styles');
+    assert.doesNotMatch(
+      html,
+      /_ngcontent-|_nghost-/,
+      'icons no longer carry emulated component styles',
+    );
   });
 }

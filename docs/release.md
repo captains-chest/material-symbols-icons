@@ -15,13 +15,13 @@ Complete these once after moving the repository to GitHub. npm does not validate
 2. Protect release tags matching `v*.*.*`.
 3. On each npm package, add a trusted publisher with **GitHub Actions** as the provider:
 
-   | Field | Value |
-   | --- | --- |
-   | Organization or user | `captains-chest` |
-   | Repository | `material-symbols-rounded-icons` |
-   | Workflow filename | `publish.yml` |
-   | Environment name | `npm-publish` |
-   | Allowed actions | `npm publish` |
+   | Field                | Value                            |
+   | -------------------- | -------------------------------- |
+   | Organization or user | `captains-chest`                 |
+   | Repository           | `material-symbols-rounded-icons` |
+   | Workflow filename    | `publish.yml`                    |
+   | Environment name     | `npm-publish`                    |
+   | Allowed actions      | `npm publish`                    |
 
    Configure both packages:
 
@@ -29,6 +29,7 @@ Complete these once after moving the repository to GitHub. npm does not validate
    - [@captains-chest/material-symbols-rounded-icons-filled](https://www.npmjs.com/package/@captains-chest/material-symbols-rounded-icons-filled)
 
    Open **Settings → Trusted Publisher**, choose **GitHub Actions**, and enter the values above exactly. The workflow filename is only `publish.yml`, not the `.github/workflows/` path.
+
 4. After a successful trusted publish, optionally set **Publishing access** to **Require two-factor authentication and disallow tokens**. Do this only after the OIDC path has published once, or emergency local publish will be blocked.
 5. The outline and filled package manifests must use the same version.
 6. Each published `package.json` `repository.url` must be the GitHub HTTPS URL. Trusted publishing generates provenance, and npm rejects the publish when that field does not match the GitHub repository.

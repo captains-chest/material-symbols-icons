@@ -1,6 +1,7 @@
 # Generated per-icon standalone components with pure entrypoints
 
 We publish two Angular packages generated from one shared pipeline:
+
 - `@captains-chest/material-symbols-rounded-icons` (outline, `msr-*` selectors)
 - `@captains-chest/material-symbols-rounded-icons-filled` (filled, `msrf-*` selectors)
 

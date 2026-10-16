@@ -6,7 +6,10 @@ import { sanitizeSvg, SvgSanitizationError } from './svg-sanitizer.mjs';
 const context = { targetId: 'outline', iconName: 'safe_icon', sourcePath: 'safe.svg' };
 
 test('sanitizeSvg accepts deterministic static Material Symbols markup', () => {
-  const result = sanitizeSvg('<svg viewBox="0 0 24 24"><path d="M1 2h3" fill="none"/></svg>', context);
+  const result = sanitizeSvg(
+    '<svg viewBox="0 0 24 24"><path d="M1 2h3" fill="none"/></svg>',
+    context,
+  );
 
   assert.deepEqual(result, { viewBox: '0 0 24 24', inner: '<path d="M1 2h3" fill="none"/>' });
 });
@@ -14,13 +17,18 @@ test('sanitizeSvg accepts deterministic static Material Symbols markup', () => {
 test('sanitizeSvg rejects active elements', () => {
   assert.throws(
     () => sanitizeSvg('<svg><script>alert(1)</script></svg>', context),
-    (error) => error instanceof SvgSanitizationError && error.violations[0].code === 'blocked-element',
+    (error) =>
+      error instanceof SvgSanitizationError && error.violations[0].code === 'blocked-element',
   );
 });
 
 test('sanitizeSvg rejects event handlers and executable URIs', () => {
   assert.throws(
-    () => sanitizeSvg('<svg><path onclick="run()" href="javascript:alert(1)" d="M0 0"/></svg>', context),
+    () =>
+      sanitizeSvg(
+        '<svg><path onclick="run()" href="javascript:alert(1)" d="M0 0"/></svg>',
+        context,
+      ),
     (error) =>
       error instanceof SvgSanitizationError &&
       error.violations.map((violation) => violation.code).includes('blocked-event-attribute') &&

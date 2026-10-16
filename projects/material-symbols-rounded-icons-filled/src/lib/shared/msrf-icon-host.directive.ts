@@ -8,7 +8,8 @@ import { DOCUMENT } from '@angular/common';
  * repeated as component styles in all icon components. Selectors repeat the class to keep the same
  * specificity the old emulated-encapsulation styles had, so consumer overrides behave the same.
  */
-export const MSRF_ICON_STYLES = `.msrf-icon.msrf-icon{display:inline-flex;flex:0 0 auto}` +
+export const MSRF_ICON_STYLES =
+  `.msrf-icon.msrf-icon{display:inline-flex;flex:0 0 auto}` +
   `.msrf-icon{inline-size:var(--msrf-icon-size, 1em);block-size:var(--msrf-icon-size, 1em)}` +
   `.msrf-icon-svg.msrf-icon-svg{display:block;inline-size:100%;block-size:100%;fill:currentColor}`;
 

@@ -8,23 +8,31 @@ const targets = [
   {
     id: 'outline',
     generatedDir: 'projects/material-symbols-rounded-icons/src/lib/icons/generated',
-    hostDirectiveSnippet: "hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }]",
+    hostDirectiveSnippet:
+      "hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }]",
     svgDirectiveSnippet: 'msrIconSvg',
-    hostSizeSnippets: ['inline-size:var(--msr-icon-size, 1em)', 'block-size:var(--msr-icon-size, 1em)'],
+    hostSizeSnippets: [
+      'inline-size:var(--msr-icon-size, 1em)',
+      'block-size:var(--msr-icon-size, 1em)',
+    ],
   },
   {
     id: 'filled',
     generatedDir: 'projects/material-symbols-rounded-icons-filled/src/lib/icons/generated',
-    hostDirectiveSnippet: "hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }]",
+    hostDirectiveSnippet:
+      "hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }]",
     svgDirectiveSnippet: 'msrfIconSvg',
-    hostSizeSnippets: ['inline-size:var(--msrf-icon-size, 1em)', 'block-size:var(--msrf-icon-size, 1em)'],
+    hostSizeSnippets: [
+      'inline-size:var(--msrf-icon-size, 1em)',
+      'block-size:var(--msrf-icon-size, 1em)',
+    ],
   },
 ];
 
 const sharedSnippets = [
-  "[attr.aria-hidden]=\"ariaLabel() ? null : 'true'\"",
+  '[attr.aria-hidden]="ariaLabel() ? null : \'true\'"',
   '[attr.aria-label]="ariaLabel()"',
-  "[attr.role]=\"ariaLabel() ? 'img' : null\"",
+  '[attr.role]="ariaLabel() ? \'img\' : null"',
 ];
 
 const forbiddenPatterns = [
@@ -37,7 +45,10 @@ const forbiddenPatterns = [
 ];
 
 const findForbiddenPatterns = (source) =>
-  forbiddenPatterns.filter(({ pattern }) => pattern.test(source)).map(({ code }) => code).sort();
+  forbiddenPatterns
+    .filter(({ pattern }) => pattern.test(source))
+    .map(({ code }) => code)
+    .sort();
 
 for (const target of targets) {
   const generatedDir = path.join(repoRoot, target.generatedDir);
@@ -47,13 +58,37 @@ for (const target of targets) {
   }
 
   const requiredSnippets = [target.hostDirectiveSnippet, target.svgDirectiveSnippet];
-  const svgDirectiveSource = await fs.readFile(path.join(generatedDir, '../../shared', `${target.id === 'filled' ? 'msrf' : 'msr'}-icon-svg.directive.ts`), 'utf8');
-  for (const snippet of ["'[attr.aria-hidden]': \"ariaLabel() ? null : 'true'\"", "'[attr.aria-label]': 'ariaLabel()'", "'[attr.role]': \"ariaLabel() ? 'img' : null\""]) {
-    if (!svgDirectiveSource.includes(snippet)) throw new Error(`Smoke check failed (${target.id}): svg directive missing snippet: ${snippet}`);
+  const svgDirectiveSource = await fs.readFile(
+    path.join(
+      generatedDir,
+      '../../shared',
+      `${target.id === 'filled' ? 'msrf' : 'msr'}-icon-svg.directive.ts`,
+    ),
+    'utf8',
+  );
+  for (const snippet of [
+    "'[attr.aria-hidden]': \"ariaLabel() ? null : 'true'\"",
+    "'[attr.aria-label]': 'ariaLabel()'",
+    "'[attr.role]': \"ariaLabel() ? 'img' : null\"",
+  ]) {
+    if (!svgDirectiveSource.includes(snippet))
+      throw new Error(
+        `Smoke check failed (${target.id}): svg directive missing snippet: ${snippet}`,
+      );
   }
-  const hostDirectiveSource = await fs.readFile(path.join(generatedDir, '../../shared', `${target.id === 'filled' ? 'msrf' : 'msr'}-icon-host.directive.ts`), 'utf8');
+  const hostDirectiveSource = await fs.readFile(
+    path.join(
+      generatedDir,
+      '../../shared',
+      `${target.id === 'filled' ? 'msrf' : 'msr'}-icon-host.directive.ts`,
+    ),
+    'utf8',
+  );
   for (const snippet of target.hostSizeSnippets) {
-    if (!hostDirectiveSource.includes(snippet)) throw new Error(`Smoke check failed (${target.id}): shared host styles missing snippet: ${snippet}`);
+    if (!hostDirectiveSource.includes(snippet))
+      throw new Error(
+        `Smoke check failed (${target.id}): shared host styles missing snippet: ${snippet}`,
+      );
   }
 
   for (const file of files) {
