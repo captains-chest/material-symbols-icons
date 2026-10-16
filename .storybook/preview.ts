@@ -8,7 +8,10 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    layout: 'padded',
+    layout: 'fullscreen',
+    options: {
+      storySort: { order: ['Catalog', 'Icons'] },
+    },
   },
 };
 

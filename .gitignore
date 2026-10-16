@@ -11,6 +11,7 @@
 /projects/*/src/lib/icons/index.ts
 /projects/*/src/lib/icons/component-map.ts
 /projects/*/src/lib/generated/
+/stories/generated/
 /tools/icons/collision-report-*.txt
 /tools/icons/missing-report-*.txt
 

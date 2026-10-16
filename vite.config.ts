@@ -1,8 +1,12 @@
 import { defineConfig } from 'vite-plus';
 
-// Generator output, produced by `pnpm icons:ensure` and ignored by git. Formatting
+// Generator output, produced by `pnpm icons:ensure` / `pnpm stories:ensure` and ignored by git. Formatting
 // these files would make them diverge from the generator.
-const generatedSources = ['projects/*/src/lib/icons/**', 'projects/*/src/lib/generated/**'];
+const generatedSources = [
+  'projects/*/src/lib/icons/**',
+  'projects/*/src/lib/generated/**',
+  'stories/generated/**',
+];
 const buildOutputs = ['dist/**', 'storybook-static/**', '.angular/**', '.cache/**'];
 
 // ng-packagr reads its own `.angular` cache and the sourcemap strip step rewrites
