@@ -150,7 +150,50 @@ Same rules and method as above. Status: in progress. TODO marks numbers that are
 
 ## exp/svg-cache: faster icon generation
 
-TODO
+The generator (`tools/icons/sync-material-symbols-rounded.mjs`) now builds one **upstream snapshot** for both targets:
+one blobless depth-1 clone, one `git ls-tree`, then **one batched `git fetch --stdin` of exactly the 8166 needed blob
+IDs** (`git cat-file --batch` to read them). This replaces the two per-target clones and non-cone sparse checkouts.
+The snapshot lives in `.cache/material-symbols/<ref>` (git-ignored, override with `MSR_SVG_CACHE_DIR`). The next run
+uses it with no network at all. Output is byte-identical: `git diff` on the generated files is empty.
+
+Full outline + filled generation, Node 24.21, same box:
+
+| Variant | Runs (s) | Median (s) |
+| --- | --- | ---: |
+| main / baseline (2× clone + sparse checkout) | 547.6 (1 run, > 5 min) | 547.6 |
+| svg-cache, **cold** (no snapshot) | 22.8 / 23.7 / 22.2 | **22.8** (24× faster) |
+| svg-cache, **warm** (snapshot cached) | 2.2 / 2.3 / 2.1 | **2.2** (250× faster) |
+
+Cold-run phases (ms): clone 11 655, fetch ref 2 994, ls-tree 2 156, **fetch 8166 blobs 838**, cat-file 130, write
+snapshot 1 707, then the actual generation ≈ 2 100 (read 900, sanitize 78, write 1 005, index/map/manifest ~100).
+The old 483 s was the non-cone sparse checkout with ~4000 patterns per target, not the download.
+
+The CI cache key is the **pinned ref from `tools/icons/upstream.json`**, not `git ls-remote`. The ref is already a pinned
+SHA, while `ls-remote` would follow the moving upstream branch and miss the cache whenever Google pushes. A whole-repo
+tarball from codeload isn't worth it: the repo is multi-GB, and the blob fetch is under 1 s.
+
+Workflow diff (`.github/workflows/ci.yml`, `deterministic-baseline` job):
+
+```diff
+       - name: Install dependencies
+         run: pnpm install --frozen-lockfile
+ 
++      - name: Read pinned upstream icon ref
++        id: upstream
++        run: echo "ref=$(node -p "require('./tools/icons/upstream.json').ref")" >> "$GITHUB_OUTPUT"
++
++      - name: Cache upstream SVG snapshot
++        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
++        with:
++          path: .cache/material-symbols
++          key: material-symbols-${{ steps.upstream.outputs.ref }}-v1
++
+       - name: Run deterministic baseline
+         run: pnpm ci:baseline
+```
+
+Risk: low. If the cache is wrong or corrupt, delete the directory or bump `-v1`. The snapshot manifest is checked
+against the configured ref and family before it is used.
 
 ## Ideas that keep the usage contract
 
