@@ -8,12 +8,16 @@ Browse the icon catalog in Storybook: https://icons.captains-chest.com
 
 - `projects/material-symbols-rounded-icons`: publishable outline standalone component library
 - `projects/material-symbols-rounded-icons-filled`: publishable filled standalone component library
-- `stories/` + `.storybook/`: Storybook catalog browser playground
+- `stories/` + `.storybook/`: Storybook playground: a searchable catalog of all icons plus one story per icon
 - `src/main.ts`, `src/index.html`, and `src/styles.css`: minimal Angular Storybook host scaffolding only
 
 There is intentionally no standalone Angular demo application. Storybook is the only playground surface.
 
 Generated icon sources (`projects/*/src/lib/icons/**` and `projects/*/src/lib/generated/**`) are not committed. `pnpm icons:ensure` regenerates them whenever they are missing or stale, and `pnpm check`, `pnpm build:lib`, `pnpm storybook`, and `pnpm build-storybook` run it first, so a fresh clone works without a manual sync. A stamp file records a hash of the generator inputs (`tools/icons/upstream.json`, the sync script, the SVG sanitizer), so changing the pinned ref or the generator triggers a regeneration. The first run fetches the pinned upstream SVGs into `.cache/material-symbols/` (about 20 s); after that, regeneration takes about 1 s and needs no network. Build outputs such as `dist/` and `storybook-static/` are ignored too. See ADR 0004.
+
+The per-icon stories (`stories/generated/`, sidebar `Icons/A` … `Icons/Z`, `Icons/0-9`) are not committed either. `pnpm stories:ensure` (`tools/icons/emit-icon-stories.mjs`) writes one story file per first character from the generated component maps, plus one module per group with that group's outline and filled components. `pnpm check`, `pnpm storybook` and `pnpm build-storybook` run it after `icons:ensure`. The catalog story lazy-loads those group modules for the icons on screen, so opening it no longer downloads all 8,166 components.
+
+Storybook compiles stories in JIT mode, which does not register signal-based `input()`, `output()` or `viewChild()`. Story-only components under `stories/` use the decorator APIs (`@Input()`, `@Output()`, `@ViewChild()`) for them.
 
 `pnpm build:lib` runs `ng build` for the root entry point (shared directives, styles, icon names and manifest) and then `tools/icons/emit-icon-entry-points.mjs`. That step emits one partial-compiled ES module and `.d.ts` per icon under `icons/`, served through the `"./*"` subpath export in each project's `package.json` (for example `@captains-chest/material-symbols-rounded-icons/home`). Icon modules import the shared directives from the package root by name, so every icon shares one directive instance. The step also packages the `ng update` migration from `tools/icons/ng-update/` into `schematics/`, with a generated class-name-to-subpath map. ng-packagr secondary entry points would produce the same layout, but a full 4,083-entry build took about 5 minutes and 10 GB of memory per package. This step is custom and sits outside the Angular Package Format, so re-check it when upgrading Angular or ng-packagr.
 
@@ -21,10 +25,11 @@ Generated icon sources (`projects/*/src/lib/icons/**` and `projects/*/src/lib/ge
 
 ```bash
 pnpm icons:ensure     # generate icon sources only if missing or stale (run automatically by the commands below)
+pnpm stories:ensure   # generate the per-icon Storybook stories (run automatically by check/storybook commands)
 pnpm sync:icons       # force-regenerate icon components for outline + filled from pinned upstream source
 pnpm build:lib        # build both publishable Angular libraries (cached, see below)
 pnpm exec vp fmt      # format hand-written sources with Oxfmt
-pnpm check            # generate icon sources if needed, then format check + type-aware lint
+pnpm check            # generate icon sources and stories if needed, then format check + type-aware lint
 pnpm storybook        # run Storybook playground
 pnpm build-storybook  # build the Storybook playground
 pnpm ci:baseline      # tests + generation + build + smoke checks
