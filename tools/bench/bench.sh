@@ -10,7 +10,7 @@ export BENCH_TOOLS=${BENCH_TOOLS:-/workspace/icons/bench-tools}
 res=$OUT/$label; mkdir -p $res/tgz; rm -f $res/*.txt
 here=$(cd "$(dirname "$0")" && pwd)
 median() { sort -n | awk '{a[NR]=$1} END{print (NR%2)? a[(NR+1)/2] : (a[NR/2]+a[NR/2+1])/2}'; }
-kv() { echo "$1=$2" >> $res/results.txt; echo "$1=$2"; }
+kv() { echo "$1=${2-}" >> $res/results.txt; echo "$1=${2-}"; }
 : > $res/results.txt
 
 # 1. library build (x runs)
@@ -18,13 +18,13 @@ cd $repo
 for i in $(seq $runs); do
   rm -rf dist; s=$(date +%s.%N)
   pnpm build:lib > $res/build-$i.log 2>&1 || { echo "BUILD FAILED"; tail -30 $res/build-$i.log; exit 1; }
-  echo "$(date +%s.%N) - $s" | bc >> $res/buildtimes.txt
+  awk -v a=$(date +%s.%N) -v b=$s 'BEGIN{printf "%.1f\n", a-b}' >> $res/buildtimes.txt
 done
 kv build_s_median $(median < $res/buildtimes.txt); kv build_s_all "$(tr '\n' ' ' < $res/buildtimes.txt)"
 for p in material-symbols-rounded-icons material-symbols-rounded-icons-filled; do
   kv dist_bytes_$p $(du -sb dist/$p | cut -f1)
   kv dist_files_$p $(find dist/$p -type f | wc -l)
-  kv dist_js_bytes_$p $(find dist/$p -name '*.mjs' -printf '%s\n' | paste -sd+ | bc)
+  kv dist_js_bytes_$p $(find dist/$p -name '*.mjs' -printf '%s\n' | awk '{s+=$1} END{print s+0}')
   (cd dist/$p && npm pack --pack-destination $res/tgz > /dev/null 2>&1)
 done
 for t in $res/tgz/*.tgz; do kv tgz_bytes_$(basename $t .tgz | sed 's/captains-chest-//; s/-[0-9.]*$//') $(stat -c %s $t); done
@@ -46,8 +46,8 @@ for sig in 'M433-80q' 'M280-120q'; do
   if echo "$init" | grep -qw "$(echo $c | cut -d' ' -f1)"; then where=initial; else where=lazy; fi
   kv lazy_icon_${sig%%-*}_chunk "$c($where)"
 done
-kv lazy_chunk_bytes "$(grep -oE 'chunk-[A-Z0-9]+\.js +\| lazy +\| +[0-9.]+ [kB]+' $res/prod.log | awk -F'|' '{print $3}' | xargs)"
-kv server_bundle_bytes $(find dist/ssr-test/server -name '*.mjs' -printf '%s\n' | paste -sd+ | bc)
+kv lazy_chunk_bytes "$(awk -F'|' '/\| lazy +\|/{gsub(/ /,"",$3); print $3; exit}' $res/prod.log)"
+kv server_bundle_bytes $(find dist/ssr-test/server -name '*.mjs' -printf '%s\n' | awk '{s+=$1} END{print s+0}')
 h=$b/index.html
 kv html_bytes_30icons $(stat -c %s $h)
 kv html_style_blocks $(grep -o '<style' $h | wc -l)
@@ -64,7 +64,7 @@ for i in $(seq $runs); do
     code=$(curl -s -o $res/serve-$i.html -w '%{http_code}' localhost:$port/ 2>/dev/null)
     [ "$code" = 200 ] && grep -q '<msr-home-icon' $res/serve-$i.html && { ok=1; break; }; sleep 0.25
   done
-  echo "$(date +%s.%N) - $s" | bc >> $res/servetimes.txt
+  awk -v a=$(date +%s.%N) -v b=$s 'BEGIN{printf "%.1f\n", a-b}' >> $res/servetimes.txt
   [ $ok = 1 ] || echo "serve run $i did not return 200" >> $res/results.txt
   curl -s localhost:$port/lazy > $res/serve-lazy-$i.html
   if [ $i = 1 ]; then node $here/hydration-check.mjs http://localhost:$port/ http://localhost:$port/lazy > $res/hydration.json 2>&1; fi
@@ -79,5 +79,5 @@ kv hydration "$(cat $res/hydration.json)"
 # 5. storybook
 cd $repo; s=$(date +%s.%N)
 if pnpm build-storybook > $res/storybook.log 2>&1; then sb=pass; else sb=FAIL; fi
-kv storybook "$sb ($(echo "$(date +%s.%N) - $s" | bc | cut -d. -f1)s)"
+kv storybook "$sb ($(awk -v a=$(date +%s.%N) -v b=$s 'BEGIN{printf "%.1f\n", a-b}' | cut -d. -f1)s)"
 echo DONE $label
