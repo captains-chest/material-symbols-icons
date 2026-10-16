@@ -183,17 +183,18 @@ async function createSnapshot(config, targets, snapshotDir) {
       ['fetch', '--quiet', '--depth', '1', '--filter=blob:none', '--no-tags', 'origin', config.ref],
       tmp,
     );
-    const tree = await runGitRead(
-      ['ls-tree', '-r', '--format=%(objectname) %(path)', config.ref, 'symbols/web'],
-      tmp,
-    );
+    // Default `<mode> <type> <oid>\t<path>` entries, not `--format` (git >= 2.36): build images
+    // such as Cloudflare Pages v3 ship git 2.34.
+    const tree = await runGitRead(['ls-tree', '-r', '-z', config.ref, 'symbols/web'], tmp);
 
     const suffixes = targets.map((target) => target.variant.fileSuffix);
     const wanted = [];
-    for (const line of tree.split(/\r?\n/)) {
-      const space = line.indexOf(' ');
-      const oid = line.slice(0, space);
-      const filePath = line.slice(space + 1);
+    for (const entry of tree.split('\0')) {
+      const tab = entry.indexOf('\t');
+      if (tab === -1) continue;
+      const [, type, oid] = entry.slice(0, tab).split(' ');
+      if (type !== 'blob') continue;
+      const filePath = entry.slice(tab + 1);
       const match = filePath.match(/^symbols\/web\/([^/]+)\/([^/]+)\/(.+)$/);
       if (!match || match[2] !== config.symbolFamily) continue;
       if (suffixes.some((suffix) => match[3] === `${match[1]}${suffix}`))
@@ -441,7 +442,9 @@ ${generated.map(({ iconName, className }) => `  '${iconName}': ${className},`).j
   await fs.writeFile(paths.generatedIndexPath, indexContent, 'utf8');
   await fs.writeFile(paths.generatedComponentMapPath, componentMapContent, 'utf8');
 
-  const { sha, committedAt } = snapshot.manifest;
+  const { sha } = snapshot.manifest;
+  // Git versions disagree on the UTC suffix of %cI (`Z` vs `+00:00`); normalize so output is stable.
+  const committedAt = new Date(snapshot.manifest.committedAt).toISOString().replace(/\.000Z$/, 'Z');
 
   const manifest = `export const ICON_MANIFEST = {
   packageName: '${target.packageName}',
