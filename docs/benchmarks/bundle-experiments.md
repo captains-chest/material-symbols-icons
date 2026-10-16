@@ -217,4 +217,20 @@ The estimates are mine, based on the round 1 numbers; "measured" means this roun
 
 ## Prototypes
 
-TODO
+Same harness (`tools/bench/bench.sh`, median of 3). `exp/slim-template` = shared-css + static templates (idea #2).
+`exp/slim-combined` = slim-template + unflattened ESM. The baseline and shared-css columns are copied from round 1.
+
+| Metric | baseline | shared-css | **slim-template** | slim-combined |
+| --- | ---: | ---: | ---: | ---: |
+| Library build, both packages (s) | 45.8 | 40.5 | **30.5** (39.5/30.5/30.2) | TODO |
+| dist outline / filled (MB) | 27.4 / 26.9 | 23.7 / 23.2 | **19.4 / 18.9** | TODO |
+| FESM JS outline (MB) | 14.4 | 12.4 | **9.9** | TODO |
+| Tarball outline / filled (KB) | 1113 / 1032 | 1088 / 1004 | **1054 / 972** | TODO |
+| Prod initial JS raw / gzip (KB) | 283.8 / 85.4 | 276.2 / 85.6 | 272.9 / 85.6 | TODO |
+| Lazy-route icons in lazy chunk? | no | no | no | TODO |
+| Server bundle (KB) | 1776 | 1757 | 1754 | TODO |
+| HTML 30 icons (KB) | 29.5 | 17.9 | 17.9 | TODO |
+| Hydration / Storybook | OK / pass | OK / pass | OK / pass (`aria-label`+`role="img"` and `aria-hidden` render as before) | TODO |
+| `ng serve` cold (s) / peak (MB), default | 39.3 / 6876 | 36.1 / 6518 | **31.1 / 5771** (31.1/30.8/31.8) | TODO |
+| `ng serve` cold / peak, `prebundle.exclude` | 168 / 9231 | — | — | TODO |
+
