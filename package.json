@@ -6,7 +6,7 @@
     "build": "ng build",
     "build:lib:outline": "ng build material-symbols-rounded-icons && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons",
     "build:lib:filled": "ng build material-symbols-rounded-icons-filled && node tools/icons/strip-sourcemap-comment.mjs --dist dist/material-symbols-rounded-icons-filled",
-    "build:lib": "pnpm build:lib:outline && pnpm build:lib:filled",
+    "build:lib": "pnpm run \"/^build:lib:(outline|filled)$/\"",
     "sync:icons": "node tools/icons/sync-material-symbols-rounded.mjs --target all",
     "sync:icons:outline": "node tools/icons/sync-material-symbols-rounded.mjs --target outline",
     "sync:icons:filled": "node tools/icons/sync-material-symbols-rounded.mjs --target filled",
