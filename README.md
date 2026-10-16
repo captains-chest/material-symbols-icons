@@ -38,6 +38,8 @@ The sync pipeline is pinned by `tools/icons/upstream.json`:
 - outline variant: FILL=0, wght=400, GRAD=0, opsz=24
 - filled variant: FILL=1, wght=400, GRAD=0, opsz=24
 
+The generator fetches the upstream SVGs for all variants once (a blobless clone plus one batched blob fetch) and stores them as a snapshot in `.cache/material-symbols/<ref>` (git-ignored). Later runs at the same pinned ref read the snapshot and need no network. Set `MSR_SVG_CACHE_DIR` to use another directory, or delete `.cache/` to force a fresh download. CI caches this directory with `actions/cache`, keyed on the pinned ref in `tools/icons/upstream.json`.
+
 ## Accessibility and rendering contract
 
 - decorative-first (`aria-hidden` default)
