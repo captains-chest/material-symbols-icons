@@ -76,7 +76,16 @@ git fetching blobs over the network one sparse checkout at a time, twice (once p
 - Fit for the library build: ng-packagr and `ngc` use the TypeScript **compiler API**. TypeScript 7 has no stable API yet
   (planned for 7.1), and tsc-rs has no Angular compiler, so neither can replace TypeScript inside the Angular build.
   They can only run as a separate plain `tsc --noEmit` check, which does not check Angular templates.
-  Typecheck timing: TODO.
+  Typecheck timing, `tsc -p projects/material-symbols-rounded-icons/tsconfig.lib.json --noEmit` (4089 files), median of 3,
+  all with 0 errors:
+
+  | Checker | Median (s) | Runs (s) | vs TS 6 |
+  | --- | ---: | --- | ---: |
+  | TypeScript 6.0 (repo's `tsc`) | 4.95 | 5.27 / 4.95 / 4.83 | 1× |
+  | TypeScript 7.0.2 (native, Go) | 0.99 | 0.96 / 0.99 / 1.06 | 5.0× |
+  | tsc-rs 0.7.0 (Rust, T3) | 0.41 | 0.44 / 0.41 / 0.40 | 12× |
+
+  Only useful as an optional extra CI or editor check. The library build (`ngc` inside ng-packagr) still needs TypeScript 6.
 
 ## Method
 
@@ -131,4 +140,4 @@ works in production builds.
 3. Generator: don't port it to Rust. Make the git step faster instead: clone once for both targets, run one sparse
    checkout with both variants' paths, and replace `ls-tree` + checkout with a single batched blob fetch. That targets ~95% of the
    548 s.
-4. Native TypeScript (TS 7 / tsc-rs): see the typecheck numbers. They can't replace TypeScript inside ng-packagr or `ngc` today.
+4. Native TypeScript: TS 7 (5×) or tsc-rs (12×) make a plain typecheck faster, but there is no such step today, and neither can replace TypeScript inside ng-packagr or `ngc`. tsc-rs is also 2 weeks old and LLM-written, so I'd not adopt it. Revisit TS 7 when Angular supports it.
