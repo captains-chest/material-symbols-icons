@@ -97,11 +97,7 @@ export class SvgSanitizationError extends Error {
 }
 
 const decodeAttributeValue = (value) =>
-  value
-    .replaceAll('&quot;', '"')
-    .replaceAll('&apos;', "'")
-    .replaceAll('&amp;', '&')
-    .trim();
+  value.replaceAll('&quot;', '"').replaceAll('&apos;', "'").replaceAll('&amp;', '&').trim();
 
 const pushViolation = (violations, code, detail) => {
   violations.push({ code, detail });
@@ -119,7 +115,10 @@ export const sanitizeSvg = (svgContent, context) => {
   const viewBox = svgContent.match(/\bviewBox=(['"])(.*?)\1/)?.[2] ?? '0 0 24 24';
 
   const withoutComments = svgContent.replace(/<!--[\s\S]*?-->/g, '');
-  const inner = withoutComments.replace(/^[\s\S]*?<svg\b[^>]*>/i, '').replace(/<\/svg>\s*$/i, '').trim();
+  const inner = withoutComments
+    .replace(/^[\s\S]*?<svg\b[^>]*>/i, '')
+    .replace(/<\/svg>\s*$/i, '')
+    .trim();
 
   for (const match of withoutComments.matchAll(/<\/?\s*([A-Za-z][\w:.-]*)([^>]*)>/g)) {
     const [, rawElementName, rawAttributes] = match;
@@ -137,7 +136,9 @@ export const sanitizeSvg = (svgContent, context) => {
 
     if (match[0].startsWith('</')) continue;
 
-    for (const attrMatch of rawAttributes.matchAll(/([:@A-Za-z_][\w:.-]*)\s*=\s*("[^"]*"|'[^']*')/g)) {
+    for (const attrMatch of rawAttributes.matchAll(
+      /([:@A-Za-z_][\w:.-]*)\s*=\s*("[^"]*"|'[^']*')/g,
+    )) {
       const rawName = attrMatch[1];
       const name = rawName.toLowerCase();
       const value = attrMatch[2].slice(1, -1);
@@ -154,7 +155,9 @@ export const sanitizeSvg = (svgContent, context) => {
   if (violations.length > 0) {
     throw new SvgSanitizationError({
       ...context,
-      violations: violations.sort((a, b) => `${a.code}:${a.detail}`.localeCompare(`${b.code}:${b.detail}`)),
+      violations: violations.sort((a, b) =>
+        `${a.code}:${a.detail}`.localeCompare(`${b.code}:${b.detail}`),
+      ),
     });
   }
 

@@ -12,7 +12,9 @@ import { MsrfHomeIconComponent } from '@captains-chest/material-symbols-rounded-
 
 @Component({
   imports: [MsrfHomeIconComponent],
-  template: `<div style="display:flex; width:24px; height:24px; color:#444;"><msrf-home-icon /></div>`,
+  template: `<div style="display:flex; width:24px; height:24px; color:#444;">
+    <msrf-home-icon />
+  </div>`,
 })
 export class DemoComponent {}
 ```
@@ -80,14 +82,14 @@ import { MSRF_ICON_STYLES } from '@captains-chest/material-symbols-rounded-icons
 
 > Tested in real Angular apps (`angular-16` … `angular-21`) with manual visual pages showing 10 outline/filled icon pairs side-by-side.
 
-| Angular version | Standalone | NgModule | Status |
-|---|---:|---:|---|
-| 16 | ❌ | ❌ | Not compatible |
-| 17 | ✅ | ✅ | Verified working |
-| 18 | ✅ | ✅ | Verified working |
-| 19 | ✅ | N/A | Verified working |
-| 20 | ✅ | N/A | Verified working |
-| 21 | ✅ | N/A | Verified working |
+| Angular version | Standalone | NgModule | Status           |
+| --------------- | ---------: | -------: | ---------------- |
+| 16              |         ❌ |       ❌ | Not compatible   |
+| 17              |         ✅ |       ✅ | Verified working |
+| 18              |         ✅ |       ✅ | Verified working |
+| 19              |         ✅ |      N/A | Verified working |
+| 20              |         ✅ |      N/A | Verified working |
+| 21              |         ✅ |      N/A | Verified working |
 
 ### Why Angular 16 does not work
 

@@ -11,10 +11,17 @@ const originalConfig = fs.readFileSync(path.join(repoRoot, 'tools/icons/upstream
 
 const runSyncWithConfig = (config) => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'upstream-policy-'));
-  fs.cpSync(repoRoot, tmp, { recursive: true, filter: (source) => !source.includes(`${path.sep}.git`) && !source.includes(`${path.sep}node_modules`) });
+  fs.cpSync(repoRoot, tmp, {
+    recursive: true,
+    filter: (source) =>
+      !source.includes(`${path.sep}.git`) && !source.includes(`${path.sep}node_modules`),
+  });
   fs.writeFileSync(path.join(tmp, 'tools/icons/upstream.json'), JSON.stringify(config, null, 2));
 
-  return spawnSync(process.execPath, [syncScript, '--target', 'none'], { cwd: tmp, encoding: 'utf8' });
+  return spawnSync(process.execPath, [syncScript, '--target', 'none'], {
+    cwd: tmp,
+    encoding: 'utf8',
+  });
 };
 
 test('sync rejects mutable upstream refs before target validation', () => {
