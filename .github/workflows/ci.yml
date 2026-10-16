@@ -31,6 +31,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Read pinned upstream icon ref
+        id: upstream
+        run: echo "ref=$(node -p "require('./tools/icons/upstream.json').ref")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache upstream SVG snapshot
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/material-symbols
+          key: material-symbols-${{ steps.upstream.outputs.ref }}-v1
+
       - name: Run deterministic baseline
         run: pnpm ci:baseline
 
