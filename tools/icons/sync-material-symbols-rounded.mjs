@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { formatSanitizationError, sanitizeSvg, SvgSanitizationError } from './svg-sanitizer.mjs';
 
@@ -97,7 +97,7 @@ async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });
 }
 
-const EXEC_MAX_BUFFER = 1024 * 1024 * 200;
+const EXEC_MAX_BUFFER = 1024 * 1024 * 1024;
 const UPSTREAM_POLICY = {
   owner: 'google',
   repo: 'material-design-icons',
@@ -161,25 +161,123 @@ function filePathForIcon(iconName, config, target) {
   return `symbols/web/${iconName}/${config.symbolFamily}/${iconName}${target.variant.fileSuffix}`;
 }
 
-async function discoverIconNamesFromTree(tmp, config, target) {
-  const treePaths = await runGitRead(['ls-tree', '-r', '--name-only', config.ref, 'symbols/web'], tmp);
-  const iconNames = [];
+// Upstream snapshot: the SVGs for every target at the pinned ref, stored in a local cache directory
+// (default .cache/material-symbols/<ref>, override with MSR_SVG_CACHE_DIR). CI caches this directory
+// keyed on the pinned ref, so a warm run needs no network at all. A cold run clones once (blobless),
+// lists the tree once, and fetches exactly the needed blobs in one batch instead of a sparse checkout.
+function snapshotDirFor(config) {
+  return process.env.MSR_SVG_CACHE_DIR
+    ? path.resolve(repoRoot, process.env.MSR_SVG_CACHE_DIR)
+    : path.join(repoRoot, '.cache/material-symbols', config.ref);
+}
 
-  for (const line of treePaths.split(/\r?\n/)) {
-    const match = line.match(/^symbols\/web\/([^/]+)\/[^/]+\/(.+)$/);
-    if (!match) continue;
-
-    const iconName = match[1];
-    const fileName = match[2];
-    if (line.includes(`/${config.symbolFamily}/`) && fileName === `${iconName}${target.variant.fileSuffix}`) {
-      iconNames.push(iconName);
-    }
+function parseCatFileBatch(buffer) {
+  const blobs = new Map();
+  let offset = 0;
+  while (offset < buffer.length) {
+    const headerEnd = buffer.indexOf(0x0a, offset);
+    const [oid, type, size] = buffer.subarray(offset, headerEnd).toString('utf8').split(' ');
+    if (type !== 'blob') throw new Error(`Unexpected git object for ${oid}: ${type}`);
+    const start = headerEnd + 1;
+    const end = start + Number(size);
+    blobs.set(oid, buffer.subarray(start, end));
+    offset = end + 1;
   }
+  return blobs;
+}
 
+async function createSnapshot(config, targets, snapshotDir) {
+  const tmp = await phase('git-clone', () => clonePromisorRepo(config));
+  try {
+    await phase('git-fetch-ref', () =>
+      runGit(['fetch', '--quiet', '--depth', '1', '--filter=blob:none', '--no-tags', 'origin', config.ref], tmp),
+    );
+    const tree = await phase('git-ls-tree', () =>
+      runGitRead(['ls-tree', '-r', '--format=%(objectname) %(path)', config.ref, 'symbols/web'], tmp),
+    );
+    const suffixes = targets.map((target) => target.variant.fileSuffix);
+    const wanted = [];
+    for (const line of tree.split(/\r?\n/)) {
+      const space = line.indexOf(' ');
+      const oid = line.slice(0, space);
+      const filePath = line.slice(space + 1);
+      const match = filePath.match(/^symbols\/web\/([^/]+)\/([^/]+)\/(.+)$/);
+      if (!match || match[2] !== config.symbolFamily) continue;
+      if (suffixes.some((suffix) => match[3] === `${match[1]}${suffix}`)) wanted.push({ oid, filePath });
+    }
+    const oidList = `${wanted.map(({ oid }) => oid).join('\n')}\n`;
+    await phase('git-fetch-blobs', () =>
+      new Promise((resolve, reject) => {
+        const child = spawn(
+          'git',
+          ['-c', 'fetch.negotiationAlgorithm=noop', 'fetch', '--quiet', '--no-tags', '--no-write-fetch-head', '--filter=blob:none', '--stdin', 'origin'],
+          { cwd: tmp, stdio: ['pipe', 'ignore', 'inherit'] },
+        );
+        child.on('error', reject);
+        child.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`git fetch of blobs failed (${code})`))));
+        child.stdin.end(oidList);
+      }),
+    );
+    const blobs = await phase('git-cat-file', () =>
+      new Promise((resolve, reject) => {
+        const child = spawn('git', ['cat-file', '--batch'], { cwd: tmp, stdio: ['pipe', 'pipe', 'inherit'] });
+        const chunks = [];
+        child.stdout.on('data', (chunk) => chunks.push(chunk));
+        child.on('error', reject);
+        child.on('close', (code) =>
+          code === 0 ? resolve(parseCatFileBatch(Buffer.concat(chunks))) : reject(new Error(`git cat-file failed (${code})`)),
+        );
+        child.stdin.end(oidList);
+      }),
+    );
+    const sha = await runGitRead(['rev-parse', `${config.ref}^{commit}`], tmp);
+    const committedAt = await runGitRead(['log', '-1', '--format=%cI', config.ref], tmp);
+
+    const staging = `${snapshotDir}.tmp-${process.pid}`;
+    await fs.rm(staging, { recursive: true, force: true });
+    await phase('write-snapshot', async () => {
+      for (const { oid, filePath } of wanted) {
+        const dest = path.join(staging, filePath);
+        await ensureDir(path.dirname(dest));
+        await fs.writeFile(dest, blobs.get(oid));
+      }
+    });
+    const manifest = { ref: config.ref, sha, committedAt, symbolFamily: config.symbolFamily, files: wanted.map(({ filePath }) => filePath).sort() };
+    await fs.writeFile(path.join(staging, 'snapshot.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    await fs.rm(snapshotDir, { recursive: true, force: true });
+    await ensureDir(path.dirname(snapshotDir));
+    await fs.rename(staging, snapshotDir);
+    return manifest;
+  } finally {
+    await fs.rm(tmp, { recursive: true, force: true });
+  }
+}
+
+async function loadSnapshot(config, targets) {
+  const snapshotDir = snapshotDirFor(config);
+  try {
+    const manifest = JSON.parse(await fs.readFile(path.join(snapshotDir, 'snapshot.json'), 'utf8'));
+    if (manifest.ref === config.ref && manifest.symbolFamily === config.symbolFamily) {
+      console.log(`Using cached upstream SVG snapshot ${path.relative(repoRoot, snapshotDir) || snapshotDir}`);
+      return { dir: snapshotDir, manifest };
+    }
+  } catch {
+    // no usable cache: create it below
+  }
+  const manifest = await createSnapshot(config, targets, snapshotDir);
+  return { dir: snapshotDir, manifest };
+}
+
+function discoverIconNames(snapshot, config, target) {
+  const iconNames = [];
+  for (const filePath of snapshot.manifest.files) {
+    const match = filePath.match(/^symbols\/web\/([^/]+)\/[^/]+\/(.+)$/);
+    if (match && match[2] === `${match[1]}${target.variant.fileSuffix}`) iconNames.push(match[1]);
+  }
   return [...new Set(iconNames)].sort((a, b) => a.localeCompare(b));
 }
 
-async function readIconList(args, tmp, config, target) {
+async function readIconList(args, snapshot, config, target) {
   if (args.iconsFile) {
     const raw = await fs.readFile(args.iconsFile, 'utf8');
     return raw
@@ -188,17 +286,7 @@ async function readIconList(args, tmp, config, target) {
       .filter(Boolean);
   }
 
-  return discoverIconNamesFromTree(tmp, config, target);
-}
-
-async function materializeOnlyPaths(tmp, config, target, iconNames) {
-  await runGit(['sparse-checkout', 'init', '--no-cone'], tmp);
-
-  const sparseFile = path.join(tmp, '.git/info/sparse-checkout');
-  const lines = iconNames.map((iconName) => filePathForIcon(iconName, config, target));
-  await fs.writeFile(sparseFile, `${lines.join('\n')}\n`, 'utf8');
-
-  await runGit(['checkout', '--detach', config.ref], tmp);
+  return discoverIconNames(snapshot, config, target);
 }
 
 async function clearGeneratedFiles(generatedDir) {
@@ -232,14 +320,12 @@ function targetPaths(target) {
   };
 }
 
-async function generateForTarget(args, config, target) {
+async function generateForTarget(args, config, target, snapshot) {
   const paths = targetPaths(target);
   const collisionReportPath = path.join(repoRoot, `tools/icons/collision-report-${target.id}.txt`);
   const missingReportPath = path.join(repoRoot, `tools/icons/missing-report-${target.id}.txt`);
 
-  const tmp = await phase('git-clone', () => clonePromisorRepo(config));
-
-  const discoveredOrRequested = await phase('git-ls-tree', () => readIconList(args, tmp, config, target));
+  const discoveredOrRequested = await phase('list-icons', () => readIconList(args, snapshot, config, target));
   const selected = args.limit ? discoveredOrRequested.slice(0, args.limit) : discoveredOrRequested;
 
   if (selected.length === 0) throw new Error(`No icons selected for generation for target: ${target.id}`);
@@ -258,7 +344,6 @@ async function generateForTarget(args, config, target) {
 
   await removeFileIfExists(collisionReportPath);
 
-  await phase('git-sparse-checkout', () => materializeOnlyPaths(tmp, config, target, selected));
   await phase('clear-generated', () => clearGeneratedFiles(paths.generatedDir));
 
   const missing = [];
@@ -266,7 +351,7 @@ async function generateForTarget(args, config, target) {
 
   for (const iconName of selected) {
     const relativeSvgPath = filePathForIcon(iconName, config, target);
-    const svgPath = path.join(tmp, relativeSvgPath);
+    const svgPath = path.join(snapshot.dir, relativeSvgPath);
 
     let svgText;
     try {
@@ -344,8 +429,7 @@ ${generated.map(({ iconName, className }) => `  '${iconName}': ${className},`).j
   await fs.writeFile(paths.generatedIndexPath, indexContent, 'utf8');
   await fs.writeFile(paths.generatedComponentMapPath, componentMapContent, 'utf8');
 
-  const sha = await runGitRead(['rev-parse', 'HEAD'], tmp);
-  const committedAt = await runGitRead(['log', '-1', '--format=%cI', 'HEAD'], tmp);
+  const { sha, committedAt } = snapshot.manifest;
 
   const manifest = `export const ICON_MANIFEST = {
   packageName: '${target.packageName}',
@@ -393,8 +477,9 @@ async function main() {
   }
 
   const totalStart = performance.now();
+  const snapshot = await loadSnapshot(config, targets);
   for (const target of selectedTargets) {
-    await generateForTarget(args, config, target);
+    await generateForTarget(args, config, target, snapshot);
   }
   if (PROFILE) {
     const total = performance.now() - totalStart;
