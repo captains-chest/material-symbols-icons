@@ -37,31 +37,20 @@ function componentSource({ selector, className, viewBox, innerSvg, classPrefix, 
   const escapedInner = innerSvg.replace(/`/g, '\\`').replace(/\$\{/g, '\\\${');
   const hostClass = `${directivePrefix}-icon`;
   const svgClass = `${directivePrefix}-icon-svg`;
-  return `import { Component, input } from '@angular/core';
+  return `import { Component } from '@angular/core';
 import { ${classPrefix}IconHostDirective } from '../../shared/${directivePrefix}-icon-host.directive';
 import { ${classPrefix}IconSvgDirective } from '../../shared/${directivePrefix}-icon-svg.directive';
 
 @Component({
   selector: '${selector}',
   imports: [${classPrefix}IconSvgDirective],
-  hostDirectives: [${classPrefix}IconHostDirective],
-  template: \
-\`<svg
-  ${directivePrefix}IconSvg
-  focusable="false"
-  [attr.viewBox]="'${viewBox}'"
-  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
-  [attr.aria-label]="ariaLabel()"
-  [attr.role]="ariaLabel() ? 'img' : null"
->
-  ${escapedInner}
-</svg>\`,
+  hostDirectives: [{ directive: ${classPrefix}IconHostDirective, inputs: ['ariaLabel'] }],
+  template: \`<svg ${directivePrefix}IconSvg focusable="false" viewBox="${viewBox}">${escapedInner}</svg>\`,
 })
-export class ${className} {
-  readonly ariaLabel = input<string | null>(null);
-}
+export class ${className} {}
 `;
 }
+
 
 async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });

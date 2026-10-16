@@ -1,4 +1,4 @@
-import { CSP_NONCE, Directive, inject } from '@angular/core';
+import { CSP_NONCE, Directive, inject, input } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
 /**
@@ -33,6 +33,9 @@ function ensureIconStyles(doc: Document, nonce: string | null): void {
   },
 })
 export class MsrIconHostDirective {
+  /** Accessible label. When set, the icon gets role="img"; otherwise it is aria-hidden. */
+  readonly ariaLabel = input<string | null>(null);
+
   constructor() {
     ensureIconStyles(inject(DOCUMENT), inject(CSP_NONCE, { optional: true }));
   }
