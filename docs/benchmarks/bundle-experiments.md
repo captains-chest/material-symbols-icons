@@ -146,7 +146,7 @@ works in production builds.
 
 # Round 2 (PR #27 follow-up)
 
-Same rules and method as above. Status: in progress. TODO marks numbers that aren't measured yet.
+Same rules and method as above. Status: complete.
 
 ## exp/svg-cache: faster icon generation
 
@@ -222,15 +222,40 @@ Same harness (`tools/bench/bench.sh`, median of 3). `exp/slim-template` = shared
 
 | Metric | baseline | shared-css | **slim-template** | slim-combined |
 | --- | ---: | ---: | ---: | ---: |
-| Library build, both packages (s) | 45.8 | 40.5 | **30.5** (39.5/30.5/30.2) | TODO |
-| dist outline / filled (MB) | 27.4 / 26.9 | 23.7 / 23.2 | **19.4 / 18.9** | TODO |
-| FESM JS outline (MB) | 14.4 | 12.4 | **9.9** | TODO |
-| Tarball outline / filled (KB) | 1113 / 1032 | 1088 / 1004 | **1054 / 972** | TODO |
-| Prod initial JS raw / gzip (KB) | 283.8 / 85.4 | 276.2 / 85.6 | 272.9 / 85.6 | TODO |
-| Lazy-route icons in lazy chunk? | no | no | no | TODO |
-| Server bundle (KB) | 1776 | 1757 | 1754 | TODO |
-| HTML 30 icons (KB) | 29.5 | 17.9 | 17.9 | TODO |
-| Hydration / Storybook | OK / pass | OK / pass | OK / pass (`aria-label`+`role="img"` and `aria-hidden` render as before) | TODO |
-| `ng serve` cold (s) / peak (MB), default | 39.3 / 6876 | 36.1 / 6518 | **31.1 / 5771** (31.1/30.8/31.8) | TODO |
-| `ng serve` cold / peak, `prebundle.exclude` | 168 / 9231 | — | — | TODO |
+| Library build, both packages (s) | 45.8 | 40.5 | **30.5** (39.5/30.5/30.2) | 66.5 (66.5/375.0*/56.9) |
+| dist outline / filled (MB) | 27.4 / 26.9 | 23.7 / 23.2 | **19.4 / 18.9** | 13.2 / 12.8 (4093 files each) |
+| FESM JS outline (MB) | 14.4 | 12.4 | **9.9** | 11.5 (per-file ESM) |
+| Tarball outline / filled (KB) | 1113 / 1032 | 1088 / 1004 | **1054 / 972** | 1182 / 1096 |
+| Prod initial JS raw / gzip (KB) | 283.8 / 85.4 | 276.2 / 85.6 | 272.9 / 85.6 | 273.5 / 85.2 |
+| Lazy-route icons in lazy chunk? | no | no | no | no |
+| Server bundle (KB) | 1776 | 1757 | 1754 | 1754 |
+| HTML 30 icons (KB) | 29.5 | 17.9 | 17.9 | 17.9 |
+| Hydration / Storybook | OK / pass | OK / pass | OK / pass (`aria-label`+`role="img"` and `aria-hidden` render as before) | OK / pass |
+| `ng serve` cold (s) / peak (MB), default | 39.3 / 6876 | 36.1 / 6518 | **31.1 / 5771** (31.1/30.8/31.8) | 47.3 / 5573 (53.6/47.3/46.7) |
+| `ng serve` cold / peak, `prebundle.exclude` | 168 / 9231 | — | — | **20.0 / 4596** (20.0/20.8/20.0) |
+
+\* One build run hit 375 s because the shared box was under load; the median is unaffected.
+
+**Parallel library builds (idea #10)**, measured on `exp/slim-template`: `build:lib:outline` and `build:lib:filled` run
+at the same time took 36.7 / 15.1 / 13.5 s (median **15.1 s**), versus 30.5 s run one after the other. That's ~50% faster, for a
+one-line `package.json` change (or two CI jobs).
+
+What slim-template shows: removing per-icon bindings and the per-icon input cuts each compiled icon declaration
+substantially. FESM is −31% vs baseline, the library build −33%, and the default `ng serve` cold start goes from 39.3 to 31.1 s
+(−21%), with 1.1 GB less peak memory and **no consumer setting needed**. Gzipped prod bytes don't move, because gzip
+already compressed the repeated boilerplate. The same pattern as before: gzip absorbs repetition, so the wins are in
+dev/build time, raw size and HTML, not in gzip transfer.
+
+## Round 2 recommendation (ranked)
+
+1. **`exp/svg-cache`**: generator 548 s → 22.8 s cold / 2.2 s warm, identical output. Low risk; CI-only workflow change.
+2. **`exp/slim-template`** (includes shared-css): −39% SSR HTML, −31% package JS, −33% library build, −21% `ng serve` cold
+   start and −1.1 GB, with no consumer changes. The one API nuance: `ariaLabel` is now an input of the host directive, so templates
+   are unaffected but direct `component.ariaLabel` access isn't. Ship it in a minor release with a changelog note (or a major,
+   if you want to be strict).
+3. **Parallel `build:lib`**: ~50% faster library build, trivial.
+4. **Unflattened ESM** (`exp/slim-combined`): only together with README guidance for `prebundle.exclude` (20 s / 4.6 GB dev).
+   Without that setting it's slower (47 s), so it stays optional.
+5. Not worth doing: path compression (worse under gzip), outline/filled dedupe, sprite, innerHTML renderer, dev stub, lazy-chunk
+   post-step (impossible from the library side), incremental generation (≤ 1 s after svg-cache).
 
