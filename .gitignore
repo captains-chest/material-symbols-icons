@@ -6,6 +6,14 @@
 /out-tsc
 /bazel-out
 
+# Generated icon sources (produced by `pnpm icons:ensure` / `pnpm sync:icons`)
+/projects/*/src/lib/icons/generated/
+/projects/*/src/lib/icons/index.ts
+/projects/*/src/lib/icons/component-map.ts
+/projects/*/src/lib/generated/
+/tools/icons/collision-report-*.txt
+/tools/icons/missing-report-*.txt
+
 # Node
 /node_modules
 npm-debug.log

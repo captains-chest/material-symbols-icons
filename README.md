@@ -13,20 +13,21 @@ Browse the icon catalog in Storybook: https://icons.captains-chest.com
 
 There is intentionally no standalone Angular demo application. Storybook is the only playground surface.
 
-Generated icon source files are committed because they are the public API under review. Build outputs such as `dist/` and `storybook-static/` are ignored and regenerated locally or in CI.
+Generated icon sources (`projects/*/src/lib/icons/**` and `projects/*/src/lib/generated/**`) are not committed. `pnpm icons:ensure` regenerates them whenever they are missing or stale, and `pnpm check`, `pnpm build:lib`, `pnpm storybook`, and `pnpm build-storybook` run it first, so a fresh clone works without a manual sync. A stamp file records a hash of the generator inputs (`tools/icons/upstream.json`, the sync script, the SVG sanitizer), so changing the pinned ref or the generator triggers a regeneration. The first run fetches the pinned upstream SVGs into `.cache/material-symbols/` (about 20 s); after that, regeneration takes about 1 s and needs no network. Build outputs such as `dist/` and `storybook-static/` are ignored too. See ADR 0004.
 
 `pnpm build:lib` runs `ng build` for the root entry point (shared directives, styles, icon names and manifest) and then `tools/icons/emit-icon-entry-points.mjs`. That step emits one partial-compiled ES module and `.d.ts` per icon under `icons/`, served through the `"./*"` subpath export in each project's `package.json` (for example `@captains-chest/material-symbols-rounded-icons/home`). Icon modules import the shared directives from the package root by name, so every icon shares one directive instance. The step also packages the `ng update` migration from `tools/icons/ng-update/` into `schematics/`, with a generated class-name-to-subpath map. ng-packagr secondary entry points would produce the same layout, but a full 4,083-entry build took about 5 minutes and 10 GB of memory per package. This step is custom and sits outside the Angular Package Format, so re-check it when upgrading Angular or ng-packagr.
 
 ## Core commands
 
 ```bash
-pnpm sync:icons       # fetch + generate icon components for outline + filled from pinned upstream source
+pnpm icons:ensure     # generate icon sources only if missing or stale (run automatically by the commands below)
+pnpm sync:icons       # force-regenerate icon components for outline + filled from pinned upstream source
 pnpm build:lib        # build both publishable Angular libraries (cached, see below)
 pnpm exec vp fmt      # format hand-written sources with Oxfmt
-pnpm exec vp check    # format check + type-aware lint
+pnpm check            # generate icon sources if needed, then format check + type-aware lint
 pnpm storybook        # run Storybook playground
 pnpm build-storybook  # build the Storybook playground
-pnpm ci:baseline      # determinism + build + smoke checks
+pnpm ci:baseline      # tests + generation + build + smoke checks
 pnpm release:check    # full pre-publish validation + npm pack dry-run
 pnpm release:publish  # publish dist packages to npm
 ```
@@ -43,7 +44,7 @@ Generated icon sources (`projects/*/src/lib/icons/**` and `projects/*/src/lib/ge
 
 By default, `pnpm sync:icons` generates the full Material Symbols Rounded set for both outline and filled variants at the pinned upstream ref.
 
-For fast local checks, use `pnpm sync:icons:sample` to generate the sample list from `tools/icons/sample-icons.txt`.
+For fast local checks, use `pnpm sync:icons:sample` to generate the sample list from `tools/icons/sample-icons.txt`. A sample generation is marked partial, so the next `pnpm icons:ensure` restores the full set.
 
 The sync pipeline is pinned by `tools/icons/upstream.json`:
 

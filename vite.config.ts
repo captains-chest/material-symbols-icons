@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite-plus';
 
-// Generator output, checked byte-for-byte by `pnpm verify:generated`. Formatting
-// these files would make the committed sources diverge from the generator.
+// Generator output, produced by `pnpm icons:ensure` and ignored by git. Formatting
+// these files would make them diverge from the generator.
 const generatedSources = ['projects/*/src/lib/icons/**', 'projects/*/src/lib/generated/**'];
 const buildOutputs = ['dist/**', 'storybook-static/**', '.angular/**', '.cache/**'];
 
@@ -9,6 +9,7 @@ const buildOutputs = ['dist/**', 'storybook-static/**', '.angular/**', '.cache/*
 // `dist/`, so both are excluded from the inputs to keep the task cacheable.
 const libraryBuild = (script: string, distDir: string) => ({
   command: `pnpm ${script}`,
+  dependsOn: ['icons'],
   cache: {
     input: [{ auto: true }, '!dist/**', '!.angular/**'],
     output: [`${distDir}/**`],
@@ -18,6 +19,11 @@ const libraryBuild = (script: string, distDir: string) => ({
 export default defineConfig({
   run: {
     tasks: {
+      // Cheap freshness check; regenerates icon sources only when missing or stale.
+      icons: {
+        command: 'pnpm icons:ensure',
+        cache: false,
+      },
       lib: {
         command: 'echo "Built outline and filled libraries"',
         dependsOn: ['lib:outline', 'lib:filled'],

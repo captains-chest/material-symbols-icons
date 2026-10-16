@@ -45,7 +45,7 @@ pnpm release:check
 This runs:
 
 - SVG sanitizer and upstream policy tests
-- deterministic generated-source verification
+- generation stamp tests and icon source generation (regenerated if missing or stale)
 - both library builds
 - smoke checks, including forbidden SVG pattern gates
 - SSR render tests for `ariaLabel` (template, `setInput`, `NgComponentOutlet`) and shared styles
