@@ -1,6 +1,6 @@
 // Renders the built packages with Angular SSR (JIT) and checks the public rendering contract:
 // ariaLabel through templates, ComponentRef.setInput and NgComponentOutlet, plus shared styles.
-// Covers both the root entry point and per-icon subpaths. Run after `pnpm build:lib`.
+// Icons load from per-icon subpaths; the root entry carries only the shared API. Run after `pnpm build:lib`.
 import '@angular/compiler';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
@@ -64,120 +64,105 @@ function svgFor(body, selector) {
   return match[1];
 }
 
-const entries = [
-  {
-    id: 'root',
-    load: async (variant) => {
-      const pkg = await loadPackage(variant.dist);
-      return [pkg, pkg];
-    },
-  },
-  {
-    id: 'subpath',
-    load: (variant) =>
-      Promise.all([loadSubpath(variant.dist, 'home'), loadSubpath(variant.dist, 'search')]),
-  },
-];
-
-for (const variant of variants)
-  for (const entry of entries) {
-    const [homeModule, searchModule] = await entry.load(variant);
-    const Home = homeModule[`${variant.classPrefix}HomeIconComponent`];
-    const Search = searchModule[`${variant.classPrefix}SearchIconComponent`];
-    const styleId = `${variant.prefix}-icon-styles`;
-    const name = `${variant.id} (${entry.id})`;
-
-    test(`${name}: template ariaLabel and default aria-hidden`, async () => {
-      const Root = Component({
-        selector: 'test-root',
-        imports: [Home, Search],
-        template: `<${variant.prefix}-home-icon /><${variant.prefix}-search-icon ariaLabel="Search" />`,
-      })(class {});
-      const { body } = await render(Root);
-
-      const homeSvg = svgFor(body, `${variant.prefix}-home-icon`);
-      assert.match(homeSvg, /aria-hidden="true"/);
-      assert.doesNotMatch(homeSvg, /role=|aria-label=/);
-      assert.match(homeSvg, /viewBox="0 -960 960 960"/);
-      assert.match(homeSvg, /focusable="false"/);
-      assert.match(homeSvg, new RegExp(`class="${variant.prefix}-icon-svg"`));
-
-      const searchSvg = svgFor(body, `${variant.prefix}-search-icon`);
-      assert.match(searchSvg, /aria-label="Search"/);
-      assert.match(searchSvg, /role="img"/);
-      assert.doesNotMatch(searchSvg, /aria-hidden=/);
-    });
-
-    test(`${name}: ComponentRef.setInput('ariaLabel')`, async () => {
-      const Root = Component({ selector: 'test-root', template: '' })(
-        class {
-          constructor() {
-            const ref = inject(ViewContainerRef).createComponent(Home);
-            ref.setInput('ariaLabel', 'Home');
-          }
-        },
-      );
-      const { body } = await render(Root);
-      const svg = svgFor(body, `${variant.prefix}-home-icon`);
-      assert.match(svg, /aria-label="Home"/);
-      assert.match(svg, /role="img"/);
-    });
-
-    test(`${name}: NgComponentOutlet inputs`, async () => {
-      const Root = Component({
-        selector: 'test-root',
-        imports: [NgComponentOutlet],
-        template: `<ng-container *ngComponentOutlet="icon; inputs: { ariaLabel: 'Outlet' }" />`,
-      })(
-        class {
-          icon = Home;
-        },
-      );
-      const { body } = await render(Root);
-      const svg = svgFor(body, `${variant.prefix}-home-icon`);
-      assert.match(svg, /aria-label="Outlet"/);
-      assert.match(svg, /role="img"/);
-    });
-
-    test(`${name}: one shared style element with CSP nonce`, async () => {
-      const Root = Component({
-        selector: 'test-root',
-        imports: [Home, Search],
-        template: `<${variant.prefix}-home-icon /><${variant.prefix}-search-icon /><${variant.prefix}-home-icon />`,
-      })(class {});
-      const { html } = await render(Root, [{ provide: CSP_NONCE, useValue: 'test-nonce' }]);
-
-      const styles =
-        html.match(new RegExp(`<style[^>]*id="${styleId}"[^>]*>[^<]*</style>`, 'g')) ?? [];
-      assert.equal(styles.length, 1);
-      assert.match(styles[0], /nonce="test-nonce"/);
-      assert.ok(styles[0].includes(homeModule[`${variant.prefix.toUpperCase()}_ICON_STYLES`]));
-      assert.doesNotMatch(
-        html,
-        /_ngcontent-|_nghost-/,
-        'icons no longer carry emulated component styles',
-      );
-    });
+test('root entries export the shared API without icon components', async () => {
+  for (const variant of variants) {
+    const root = await loadPackage(variant.dist);
+    const prefix = variant.prefix.toUpperCase();
+    for (const name of [
+      `${variant.classPrefix}IconHostDirective`,
+      `${variant.classPrefix}IconSvgDirective`,
+      `${prefix}_ICON_STYLES`,
+      'ICON_MANIFEST',
+      'MSR_ICON_NAMES',
+    ])
+      assert.ok(root[name], `${variant.id} root exports ${name}`);
+    assert.deepEqual(
+      Object.keys(root).filter((name) => name.endsWith('IconComponent')),
+      [],
+    );
   }
+});
 
 for (const variant of variants) {
-  test(`${variant.id}: root and subpath imports mixed in one app`, async () => {
-    const Home = (await loadPackage(variant.dist))[`${variant.classPrefix}HomeIconComponent`];
-    const Search = (await loadSubpath(variant.dist, 'search'))[
-      `${variant.classPrefix}SearchIconComponent`
-    ];
+  const [homeModule, searchModule, rootModule] = await Promise.all([
+    loadSubpath(variant.dist, 'home'),
+    loadSubpath(variant.dist, 'search'),
+    loadPackage(variant.dist),
+  ]);
+  const Home = homeModule[`${variant.classPrefix}HomeIconComponent`];
+  const Search = searchModule[`${variant.classPrefix}SearchIconComponent`];
+  const styleId = `${variant.prefix}-icon-styles`;
+  const name = variant.id;
+
+  test(`${name}: template ariaLabel and default aria-hidden`, async () => {
     const Root = Component({
       selector: 'test-root',
       imports: [Home, Search],
       template: `<${variant.prefix}-home-icon /><${variant.prefix}-search-icon ariaLabel="Search" />`,
     })(class {});
-    const { html, body } = await render(Root);
+    const { body } = await render(Root);
 
-    assert.match(svgFor(body, `${variant.prefix}-home-icon`), /aria-hidden="true"/);
-    assert.match(svgFor(body, `${variant.prefix}-search-icon`), /aria-label="Search"/);
-    assert.equal(
-      html.match(new RegExp(`<style[^>]*id="${variant.prefix}-icon-styles"`, 'g'))?.length,
-      1,
+    const homeSvg = svgFor(body, `${variant.prefix}-home-icon`);
+    assert.match(homeSvg, /aria-hidden="true"/);
+    assert.doesNotMatch(homeSvg, /role=|aria-label=/);
+    assert.match(homeSvg, /viewBox="0 -960 960 960"/);
+    assert.match(homeSvg, /focusable="false"/);
+    assert.match(homeSvg, new RegExp(`class="${variant.prefix}-icon-svg"`));
+
+    const searchSvg = svgFor(body, `${variant.prefix}-search-icon`);
+    assert.match(searchSvg, /aria-label="Search"/);
+    assert.match(searchSvg, /role="img"/);
+    assert.doesNotMatch(searchSvg, /aria-hidden=/);
+  });
+
+  test(`${name}: ComponentRef.setInput('ariaLabel')`, async () => {
+    const Root = Component({ selector: 'test-root', template: '' })(
+      class {
+        constructor() {
+          const ref = inject(ViewContainerRef).createComponent(Home);
+          ref.setInput('ariaLabel', 'Home');
+        }
+      },
+    );
+    const { body } = await render(Root);
+    const svg = svgFor(body, `${variant.prefix}-home-icon`);
+    assert.match(svg, /aria-label="Home"/);
+    assert.match(svg, /role="img"/);
+  });
+
+  test(`${name}: NgComponentOutlet inputs`, async () => {
+    const Root = Component({
+      selector: 'test-root',
+      imports: [NgComponentOutlet],
+      template: `<ng-container *ngComponentOutlet="icon; inputs: { ariaLabel: 'Outlet' }" />`,
+    })(
+      class {
+        icon = Home;
+      },
+    );
+    const { body } = await render(Root);
+    const svg = svgFor(body, `${variant.prefix}-home-icon`);
+    assert.match(svg, /aria-label="Outlet"/);
+    assert.match(svg, /role="img"/);
+  });
+
+  test(`${name}: one shared style element with CSP nonce`, async () => {
+    const Root = Component({
+      selector: 'test-root',
+      imports: [Home, Search],
+      template: `<${variant.prefix}-home-icon /><${variant.prefix}-search-icon /><${variant.prefix}-home-icon />`,
+    })(class {});
+    const { html } = await render(Root, [{ provide: CSP_NONCE, useValue: 'test-nonce' }]);
+
+    const styles =
+      html.match(new RegExp(`<style[^>]*id="${styleId}"[^>]*>[^<]*</style>`, 'g')) ?? [];
+    assert.equal(styles.length, 1);
+    assert.match(styles[0], /nonce="test-nonce"/);
+    assert.ok(styles[0].includes(rootModule[`${variant.prefix.toUpperCase()}_ICON_STYLES`]));
+    assert.doesNotMatch(
+      html,
+      /_ngcontent-|_nghost-/,
+      'icons no longer carry emulated component styles',
     );
   });
 }

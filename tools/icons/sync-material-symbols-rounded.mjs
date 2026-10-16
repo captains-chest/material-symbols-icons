@@ -418,14 +418,8 @@ async function generateForTarget(args, config, target, snapshot) {
     await removeFileIfExists(missingReportPath);
   }
 
-  const indexContent = `${generated
-    .map(
-      ({ fileName, className }) =>
-        `export { ${className} } from './generated/${fileName.replace(/\.ts$/, '')}';`,
-    )
-    .join('\n')}
-
-export const MSR_ICON_NAMES = [
+  // Icon components are published only through per-icon subpaths; the root entry carries just the names.
+  const indexContent = `export const MSR_ICON_NAMES = [
 ${generated.map(({ iconName }) => `  '${iconName}',`).join('\n')}
 ] as const;
 
