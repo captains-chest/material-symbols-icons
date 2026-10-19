@@ -6,12 +6,12 @@
   "author": "CaptainDuckay <hello@captains-chest.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/captains-chest/material-symbols-rounded-icons.git",
+    "url": "https://github.com/captains-chest/material-symbols-icons.git",
     "directory": "projects/material-symbols-rounded-icons-filled"
   },
   "homepage": "https://icons.captains-chest.com",
   "bugs": {
-    "url": "https://github.com/captains-chest/material-symbols-rounded-icons/issues"
+    "url": "https://github.com/captains-chest/material-symbols-icons/issues"
   },
   "keywords": [
     "angular",

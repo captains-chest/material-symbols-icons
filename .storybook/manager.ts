@@ -6,7 +6,7 @@ addons.setConfig({
   theme: create({
     base: 'light',
     brandTitle: 'Material Symbols',
-    brandUrl: 'https://github.com/captains-chest/material-symbols-rounded-icons',
+    brandUrl: 'https://github.com/captains-chest/material-symbols-icons',
     brandTarget: '_blank',
     colorPrimary: '#6750a4',
     colorSecondary: '#6750a4',

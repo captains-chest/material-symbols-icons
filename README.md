@@ -1,4 +1,4 @@
-# @captains-chest/material-symbols-rounded-icons workspace
+# material-symbols-icons workspace
 
 Angular workspace for publishable Material Symbols icon libraries, one unfilled and one filled package per style (Rounded, Outlined, Sharp), with a Storybook-only playground.
 
