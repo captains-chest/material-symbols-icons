@@ -1,7 +1,10 @@
 import type { Type } from '@angular/core';
 import { storyNameFromExport, toId } from 'storybook/internal/csf';
 
-export type IconVariant = 'outline' | 'filled';
+export type IconStyle = 'rounded' | 'outlined' | 'sharp';
+
+/** A published package; matches the target ids in tools/icons/upstream.json. */
+export type IconVariant = IconStyle | `${IconStyle}-filled`;
 
 export interface IconVariantEntry {
   component: Type<unknown>;
@@ -12,18 +15,36 @@ export interface IconVariantEntry {
 export type IconEntry = Partial<Record<IconVariant, IconVariantEntry>>;
 export type IconGroup = Record<string, IconEntry>;
 
-export const PACKAGES: Record<IconVariant, { name: string; prefix: string; label: string }> = {
-  outline: {
-    name: '@captains-chest/material-symbols-rounded-icons',
-    prefix: 'msr',
-    label: 'Outline',
-  },
-  filled: {
-    name: '@captains-chest/material-symbols-rounded-icons-filled',
-    prefix: 'msrf',
-    label: 'Filled',
-  },
-};
+export interface IconPackage {
+  name: string;
+  prefix: string;
+  label: string;
+}
+
+export const STYLES: {
+  value: IconStyle;
+  label: string;
+  unfilled: IconVariant;
+  filled: IconVariant;
+}[] = [
+  { value: 'rounded', label: 'Rounded', unfilled: 'rounded', filled: 'rounded-filled' },
+  { value: 'outlined', label: 'Outlined', unfilled: 'outlined', filled: 'outlined-filled' },
+  { value: 'sharp', label: 'Sharp', unfilled: 'sharp', filled: 'sharp-filled' },
+];
+
+/** Package names and selector prefixes follow tools/icons/upstream.json (msr, msrf, mso, msof, mss, mssf). */
+const iconPackage = (style: IconStyle, label: string, filled: boolean): IconPackage => ({
+  name: `@captains-chest/material-symbols-${style}-icons${filled ? '-filled' : ''}`,
+  prefix: `ms${style.charAt(0)}${filled ? 'f' : ''}`,
+  label: filled ? `${label} Filled` : label,
+});
+
+export const PACKAGES = Object.fromEntries(
+  STYLES.flatMap(({ value, label, unfilled, filled }) => [
+    [unfilled, iconPackage(value, label, false)],
+    [filled, iconPackage(value, label, true)],
+  ]),
+) as Record<IconVariant, IconPackage>;
 
 /** Must match the grouping in tools/icons/emit-icon-stories.mjs. */
 export function iconGroupOf(name: string): string {

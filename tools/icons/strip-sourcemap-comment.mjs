@@ -41,10 +41,10 @@ const args = parseArgs(process.argv.slice(2));
 const distDirs =
   args.dist.length > 0
     ? args.dist.map((dir) => path.resolve(repoRoot, dir))
-    : [
-        path.join(repoRoot, 'dist/material-symbols-rounded-icons'),
-        path.join(repoRoot, 'dist/material-symbols-rounded-icons-filled'),
-      ];
+    : Object.values(
+        JSON.parse(await fs.readFile(path.join(repoRoot, 'tools/icons/upstream.json'), 'utf8'))
+          .targets,
+      ).map(({ projectPath }) => path.join(repoRoot, 'dist', path.basename(projectPath)));
 
 let totalChanged = 0;
 for (const distDir of distDirs) {

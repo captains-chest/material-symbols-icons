@@ -18,15 +18,16 @@ import {
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideServerRendering, renderApplication } from '@angular/platform-server';
 
-const variants = [
-  { id: 'outline', dist: 'dist/material-symbols-rounded-icons', prefix: 'msr', classPrefix: 'Msr' },
-  {
-    id: 'filled',
-    dist: 'dist/material-symbols-rounded-icons-filled',
-    prefix: 'msrf',
-    classPrefix: 'Msrf',
-  },
-];
+const upstream = JSON.parse(await readFile('tools/icons/upstream.json', 'utf8'));
+const variants = Object.values(upstream.targets).map(
+  ({ id, projectPath, selectorPrefix, classPrefix, namesPrefix }) => ({
+    id,
+    dist: `dist/${path.basename(projectPath)}`,
+    prefix: selectorPrefix,
+    classPrefix,
+    namesConstant: `${namesPrefix.toUpperCase()}_ICON_NAMES`,
+  }),
+);
 
 async function loadPackage(distDir) {
   const fesmDir = path.resolve(distDir, 'fesm2022');
@@ -73,7 +74,7 @@ test('root entries export the shared API without icon components', async () => {
       `${variant.classPrefix}IconSvgDirective`,
       `${prefix}_ICON_STYLES`,
       'ICON_MANIFEST',
-      'MSR_ICON_NAMES',
+      variant.namesConstant,
     ])
       assert.ok(root[name], `${variant.id} root exports ${name}`);
     assert.deepEqual(

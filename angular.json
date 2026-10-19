@@ -105,6 +105,86 @@
           "defaultConfiguration": "production"
         }
       }
+    },
+    "material-symbols-outlined-icons": {
+      "projectType": "library",
+      "root": "projects/material-symbols-outlined-icons",
+      "sourceRoot": "projects/material-symbols-outlined-icons/src",
+      "prefix": "mso",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/material-symbols-outlined-icons/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/material-symbols-outlined-icons/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
+    "material-symbols-outlined-icons-filled": {
+      "projectType": "library",
+      "root": "projects/material-symbols-outlined-icons-filled",
+      "sourceRoot": "projects/material-symbols-outlined-icons-filled/src",
+      "prefix": "msof",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/material-symbols-outlined-icons-filled/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/material-symbols-outlined-icons-filled/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
+    "material-symbols-sharp-icons": {
+      "projectType": "library",
+      "root": "projects/material-symbols-sharp-icons",
+      "sourceRoot": "projects/material-symbols-sharp-icons/src",
+      "prefix": "mss",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/material-symbols-sharp-icons/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/material-symbols-sharp-icons/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
+    "material-symbols-sharp-icons-filled": {
+      "projectType": "library",
+      "root": "projects/material-symbols-sharp-icons-filled",
+      "sourceRoot": "projects/material-symbols-sharp-icons-filled/src",
+      "prefix": "mssf",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/material-symbols-sharp-icons-filled/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/material-symbols-sharp-icons-filled/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
     }
   }
 }

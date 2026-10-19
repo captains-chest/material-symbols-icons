@@ -2,15 +2,17 @@
   "owner": "google",
   "repo": "material-design-icons",
   "ref": "5a4e1b7fd26f11ce3d2abf7d7fcd13274f874e6c",
-  "symbolFamily": "materialsymbolsrounded",
   "targets": {
-    "outline": {
-      "id": "outline",
+    "rounded": {
+      "id": "rounded",
+      "style": "rounded",
+      "symbolFamily": "materialsymbolsrounded",
       "projectPath": "projects/material-symbols-rounded-icons",
       "packageName": "@captains-chest/material-symbols-rounded-icons",
       "selectorPrefix": "msr",
       "classPrefix": "Msr",
       "directivePrefix": "msr",
+      "namesPrefix": "Msr",
       "variant": {
         "fill": 0,
         "wght": 400,
@@ -19,13 +21,88 @@
         "fileSuffix": "_24px.svg"
       }
     },
-    "filled": {
-      "id": "filled",
+    "rounded-filled": {
+      "id": "rounded-filled",
+      "style": "rounded",
+      "symbolFamily": "materialsymbolsrounded",
       "projectPath": "projects/material-symbols-rounded-icons-filled",
       "packageName": "@captains-chest/material-symbols-rounded-icons-filled",
       "selectorPrefix": "msrf",
       "classPrefix": "Msrf",
       "directivePrefix": "msrf",
+      "namesPrefix": "Msr",
+      "variant": {
+        "fill": 1,
+        "wght": 400,
+        "grad": 0,
+        "opsz": 24,
+        "fileSuffix": "_fill1_24px.svg"
+      }
+    },
+    "outlined": {
+      "id": "outlined",
+      "style": "outlined",
+      "symbolFamily": "materialsymbolsoutlined",
+      "projectPath": "projects/material-symbols-outlined-icons",
+      "packageName": "@captains-chest/material-symbols-outlined-icons",
+      "selectorPrefix": "mso",
+      "classPrefix": "Mso",
+      "directivePrefix": "mso",
+      "namesPrefix": "Mso",
+      "variant": {
+        "fill": 0,
+        "wght": 400,
+        "grad": 0,
+        "opsz": 24,
+        "fileSuffix": "_24px.svg"
+      }
+    },
+    "outlined-filled": {
+      "id": "outlined-filled",
+      "style": "outlined",
+      "symbolFamily": "materialsymbolsoutlined",
+      "projectPath": "projects/material-symbols-outlined-icons-filled",
+      "packageName": "@captains-chest/material-symbols-outlined-icons-filled",
+      "selectorPrefix": "msof",
+      "classPrefix": "Msof",
+      "directivePrefix": "msof",
+      "namesPrefix": "Mso",
+      "variant": {
+        "fill": 1,
+        "wght": 400,
+        "grad": 0,
+        "opsz": 24,
+        "fileSuffix": "_fill1_24px.svg"
+      }
+    },
+    "sharp": {
+      "id": "sharp",
+      "style": "sharp",
+      "symbolFamily": "materialsymbolssharp",
+      "projectPath": "projects/material-symbols-sharp-icons",
+      "packageName": "@captains-chest/material-symbols-sharp-icons",
+      "selectorPrefix": "mss",
+      "classPrefix": "Mss",
+      "directivePrefix": "mss",
+      "namesPrefix": "Mss",
+      "variant": {
+        "fill": 0,
+        "wght": 400,
+        "grad": 0,
+        "opsz": 24,
+        "fileSuffix": "_24px.svg"
+      }
+    },
+    "sharp-filled": {
+      "id": "sharp-filled",
+      "style": "sharp",
+      "symbolFamily": "materialsymbolssharp",
+      "projectPath": "projects/material-symbols-sharp-icons-filled",
+      "packageName": "@captains-chest/material-symbols-sharp-icons-filled",
+      "selectorPrefix": "mssf",
+      "classPrefix": "Mssf",
+      "directivePrefix": "mssf",
+      "namesPrefix": "Mss",
       "variant": {
         "fill": 1,
         "wght": 400,

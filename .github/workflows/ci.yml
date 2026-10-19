@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/material-symbols
-          key: material-symbols-${{ steps.upstream.outputs.ref }}-v1
+          key: material-symbols-${{ steps.upstream.outputs.ref }}-v2
 
       - name: Check formatting and lint
         run: pnpm check
@@ -76,7 +76,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/material-symbols
-          key: material-symbols-${{ steps.upstream.outputs.ref }}-v1
+          key: material-symbols-${{ steps.upstream.outputs.ref }}-v2
 
       - name: Build Storybook
         run: pnpm build-storybook

@@ -14,23 +14,44 @@ import {
   ViewChild,
 } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { MSR_ICON_NAMES as OUTLINE_ICON_NAMES } from '../projects/material-symbols-rounded-icons/src/lib/icons';
+import { MSO_ICON_NAMES as OUTLINED_ICON_NAMES } from '../projects/material-symbols-outlined-icons/src/lib/icons';
+import { MSO_ICON_NAMES as OUTLINED_FILLED_ICON_NAMES } from '../projects/material-symbols-outlined-icons-filled/src/lib/icons';
+import { MSR_ICON_NAMES as ROUNDED_ICON_NAMES } from '../projects/material-symbols-rounded-icons/src/lib/icons';
 import { MsrCloseIconComponent } from '../projects/material-symbols-rounded-icons/src/lib/icons/generated/close.icon';
 import { MsrSearchIconComponent } from '../projects/material-symbols-rounded-icons/src/lib/icons/generated/search.icon';
-import { MSR_ICON_NAMES as FILLED_ICON_NAMES } from '../projects/material-symbols-rounded-icons-filled/src/lib/icons';
+import { MSR_ICON_NAMES as ROUNDED_FILLED_ICON_NAMES } from '../projects/material-symbols-rounded-icons-filled/src/lib/icons';
+import { MSS_ICON_NAMES as SHARP_ICON_NAMES } from '../projects/material-symbols-sharp-icons/src/lib/icons';
+import { MSS_ICON_NAMES as SHARP_FILLED_ICON_NAMES } from '../projects/material-symbols-sharp-icons-filled/src/lib/icons';
 import { CopyButtonComponent } from './copy-button';
 import { ICON_GROUP_LOADERS } from './generated/icon-groups';
-import { iconGroupOf, iconStoryId, PACKAGES, storyHref, type IconGroup } from './icon-types';
+import {
+  iconGroupOf,
+  iconStoryId,
+  PACKAGES,
+  storyHref,
+  STYLES,
+  type IconGroup,
+  type IconStyle,
+} from './icon-types';
 
-type VariantMode = 'outline' | 'filled' | 'both';
+type FillMode = 'unfilled' | 'filled' | 'both';
 
 const PAGE_SIZE = 180;
 const SIZES = [24, 32, 48] as const;
-const VARIANT_MODES: { value: VariantMode; label: string }[] = [
-  { value: 'outline', label: 'Outline' },
+const FILL_MODES: { value: FillMode; label: string }[] = [
+  { value: 'unfilled', label: 'Unfilled' },
   { value: 'filled', label: 'Filled' },
   { value: 'both', label: 'Both' },
 ];
+
+const sortedUnion = (...lists: readonly (readonly string[])[]): readonly string[] =>
+  [...new Set(lists.flat())].sort((a, b) => a.localeCompare(b));
+
+const NAMES_BY_STYLE: Record<IconStyle, readonly string[]> = {
+  rounded: sortedUnion(ROUNDED_ICON_NAMES, ROUNDED_FILLED_ICON_NAMES),
+  outlined: sortedUnion(OUTLINED_ICON_NAMES, OUTLINED_FILLED_ICON_NAMES),
+  sharp: sortedUnion(SHARP_ICON_NAMES, SHARP_FILLED_ICON_NAMES),
+};
 
 // Storybook compiles stories in JIT mode, which does not register signal-based inputs, outputs or
 // queries, so this file uses the decorator APIs for them.
@@ -364,13 +385,14 @@ class InViewDirective {
     <header class="hero">
       <div class="container">
         <p class="eyebrow">Angular · Standalone components</p>
-        <h1>Material Symbols Rounded</h1>
+        <h1>Material Symbols</h1>
         <p class="lead">
-          {{ names.length.toLocaleString('en-US') }} icons, each its own standalone Angular
-          component with an inline SVG. Import only what you use, in outline or filled style.
+          {{ names().length.toLocaleString('en-US') }} {{ styleDef().label }} icons, each its own
+          standalone Angular component with an inline SVG. Import only what you use, in Rounded,
+          Outlined or Sharp style, unfilled or filled.
         </p>
         <div class="install">
-          @for (pkg of packages; track pkg.name) {
+          @for (pkg of packages(); track pkg.name) {
             <div class="install-item">
               <code>npm i {{ pkg.name }}</code>
               <msr-sb-copy-button
@@ -395,7 +417,7 @@ class InViewDirective {
               type="search"
               autocomplete="off"
               spellcheck="false"
-              placeholder="Search {{ names.length.toLocaleString('en-US') }} icons…"
+              placeholder="Search {{ names().length.toLocaleString('en-US') }} icons…"
               [value]="query()"
               (input)="setQuery($any($event.target).value)"
             />
@@ -408,12 +430,24 @@ class InViewDirective {
             }
           </div>
 
-          <div class="segmented" role="group" aria-label="Variant">
-            @for (mode of variantModes; track mode.value) {
+          <div class="segmented" role="group" aria-label="Style">
+            @for (option of styles; track option.value) {
               <button
                 type="button"
-                [attr.aria-pressed]="variant() === mode.value"
-                (click)="variant.set(mode.value)"
+                [attr.aria-pressed]="iconStyle() === option.value"
+                (click)="setStyle(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
+
+          <div class="segmented" role="group" aria-label="Fill">
+            @for (mode of fillModes; track mode.value) {
+              <button
+                type="button"
+                [attr.aria-pressed]="fill() === mode.value"
+                (click)="fill.set(mode.value)"
               >
                 {{ mode.label }}
               </button>
@@ -450,7 +484,7 @@ class InViewDirective {
           <div
             class="grid"
             [style.--icon-size]="size()"
-            [style.--tile-min.px]="variant() === 'both' ? 168 : 128"
+            [style.--tile-min.px]="fill() === 'both' ? 168 : 128"
           >
             @for (name of visible(); track name) {
               @let entry = groups()[groupOf(name)]?.[name];
@@ -459,10 +493,10 @@ class InViewDirective {
                   @if (!entry) {
                     <span class="placeholder"></span>
                   } @else {
-                    @if (variant() !== 'filled' && entry.outline; as outline) {
-                      <ng-container *ngComponentOutlet="outline.component" />
+                    @if (fill() !== 'filled' && entry[styleDef().unfilled]; as unfilled) {
+                      <ng-container *ngComponentOutlet="unfilled.component" />
                     }
-                    @if (variant() !== 'outline' && entry.filled; as filled) {
+                    @if (fill() !== 'unfilled' && entry[styleDef().filled]; as filled) {
                       <ng-container *ngComponentOutlet="filled.component" />
                     }
                   }
@@ -483,25 +517,31 @@ class InViewDirective {
   `,
 })
 class CatalogComponent {
-  protected readonly names = [
-    ...new Set<string>([...OUTLINE_ICON_NAMES, ...FILLED_ICON_NAMES]),
-  ].sort((a, b) => a.localeCompare(b));
-  protected readonly packages = Object.values(PACKAGES);
-  protected readonly variantModes = VARIANT_MODES;
+  protected readonly styles = STYLES;
+  protected readonly fillModes = FILL_MODES;
   protected readonly sizes = SIZES;
 
   protected readonly query = signal('');
-  protected readonly variant = signal<VariantMode>('both');
+  protected readonly iconStyle = signal<IconStyle>('rounded');
+  protected readonly fill = signal<FillMode>('both');
   protected readonly size = signal<number>(32);
   private readonly limit = signal(PAGE_SIZE);
   @ViewChild('search', { static: true }) private searchInput?: ElementRef<HTMLInputElement>;
 
+  protected readonly styleDef = computed(
+    () => STYLES.find(({ value }) => value === this.iconStyle()) ?? STYLES[0],
+  );
+  protected readonly names = computed(() => NAMES_BY_STYLE[this.iconStyle()]);
+  protected readonly packages = computed(() => [
+    PACKAGES[this.styleDef().unfilled],
+    PACKAGES[this.styleDef().filled],
+  ]);
+
   protected readonly filtered = computed(() => {
     const terms = this.query().trim().toLowerCase().split(/\s+/).filter(Boolean);
-    if (terms.length === 0) return this.names;
-    return this.names.filter((name) =>
-      terms.every((term) => name.includes(term.replaceAll('-', '_'))),
-    );
+    const names = this.names();
+    if (terms.length === 0) return names;
+    return names.filter((name) => terms.every((term) => name.includes(term.replaceAll('-', '_'))));
   });
   protected readonly visible = computed(() => this.filtered().slice(0, this.limit()));
 
@@ -524,7 +564,12 @@ class CatalogComponent {
   }
 
   protected href(name: string): string {
-    return storyHref(iconStoryId(name));
+    return `${storyHref(iconStoryId(name))}&args=style:${this.iconStyle()}`;
+  }
+
+  protected setStyle(style: IconStyle): void {
+    this.iconStyle.set(style);
+    this.limit.set(PAGE_SIZE);
   }
 
   protected setQuery(query: string): void {

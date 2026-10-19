@@ -36,6 +36,18 @@
     },
     {
       "path": "./projects/material-symbols-rounded-icons-filled/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/material-symbols-outlined-icons/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/material-symbols-outlined-icons-filled/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/material-symbols-sharp-icons/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/material-symbols-sharp-icons-filled/tsconfig.lib.json"
     }
   ]
 }

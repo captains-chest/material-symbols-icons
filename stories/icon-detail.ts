@@ -9,13 +9,16 @@ import {
   kebabName,
   PACKAGES,
   storyHref,
+  STYLES,
   type IconEntry,
   type IconGroup,
+  type IconStyle,
   type IconVariant,
 } from './icon-types';
 
 export interface IconDetailArgs {
   name: string;
+  style: IconStyle;
   size: number;
   color: string;
 }
@@ -223,7 +226,7 @@ const SIZE_SCALE = [16, 20, 24, 32, 40, 48];
               @if (icon[variant]; as entry) {
                 <ng-container *ngComponentOutlet="entry.component" />
               } @else {
-                <span class="missing">Not available in the {{ variant }} package</span>
+                <span class="missing">Not available in {{ packages[variant].name }}</span>
               }
             </div>
             @if (icon[variant]; as entry) {
@@ -249,7 +252,7 @@ const SIZE_SCALE = [16, 20, 24, 32, 40, 48];
                 <span>{{ packages[variant].label }} · {{ packages[variant].name }}</span>
                 <msr-sb-copy-button
                   [text]="snippet(variant)"
-                  [ariaLabel]="'Copy ' + variant + ' usage'"
+                  [ariaLabel]="'Copy ' + packages[variant].name + ' usage'"
                 />
               </div>
               <pre><code>{{ snippet(variant) }}</code></pre>
@@ -264,10 +267,14 @@ export class IconDetailComponent {
   // Decorator inputs: Storybook compiles stories in JIT mode, where signal inputs are not registered.
   @Input() name = '';
   @Input() icon: IconEntry = {};
+  @Input() iconStyle: IconStyle = 'rounded';
   @Input() size = 96;
   @Input() color = '';
 
-  protected readonly variants: IconVariant[] = ['outline', 'filled'];
+  protected get variants(): IconVariant[] {
+    const style = STYLES.find(({ value }) => value === this.iconStyle) ?? STYLES[0];
+    return [style.unfilled, style.filled];
+  }
   protected readonly packages = PACKAGES;
   protected readonly sizeScale = SIZE_SCALE;
   protected readonly catalogHref = storyHref(CATALOG_STORY_ID);
@@ -295,9 +302,17 @@ export function iconDetailMeta(icons: IconGroup): Omit<Meta<IconDetailArgs>, 'ti
   return {
     decorators: [moduleMetadata({ imports: [IconDetailComponent] })],
     parameters: { layout: 'fullscreen' },
-    args: { size: 96, color: '' },
+    args: { style: 'rounded', size: 96, color: '' },
     argTypes: {
       name: { table: { disable: true } },
+      style: {
+        control: {
+          type: 'inline-radio',
+          labels: Object.fromEntries(STYLES.map((s) => [s.value, s.label])),
+        },
+        options: STYLES.map(({ value }) => value),
+        description: 'Symbol style',
+      },
       size: {
         control: { type: 'range', min: 12, max: 192, step: 4 },
         description: 'Preview size (px)',
@@ -306,7 +321,7 @@ export function iconDetailMeta(icons: IconGroup): Omit<Meta<IconDetailArgs>, 'ti
     },
     render: (args) => ({
       props: { ...args, icon: icons[args.name] ?? {} },
-      template: `<msr-sb-icon-detail [name]="name" [icon]="icon" [size]="size" [color]="color" />`,
+      template: `<msr-sb-icon-detail [name]="name" [icon]="icon" [iconStyle]="style" [size]="size" [color]="color" />`,
     }),
   };
 }

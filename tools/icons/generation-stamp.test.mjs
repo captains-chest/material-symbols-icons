@@ -10,7 +10,7 @@ import {
   writeStamp,
 } from './generation-stamp.mjs';
 
-const target = { id: 'outline', projectPath: 'projects/pkg' };
+const target = { id: 'rounded', projectPath: 'projects/pkg' };
 let root;
 
 async function write(relativePath, content = '') {

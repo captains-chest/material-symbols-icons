@@ -1,4 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { basename } from 'node:path';
 import { defineConfig } from 'vite-plus';
+
+// One library build task per package target (`lib:rounded`, `lib:sharp-filled`, ...).
+const iconTargets: Record<string, { projectPath: string }> = JSON.parse(
+  readFileSync('tools/icons/upstream.json', 'utf8'),
+).targets;
 
 // Generator output, produced by `pnpm icons:ensure` / `pnpm stories:ensure` and ignored by git. Formatting
 // these files would make them diverge from the generator.
@@ -11,8 +18,8 @@ const buildOutputs = ['dist/**', 'storybook-static/**', '.angular/**', '.cache/*
 
 // ng-packagr reads its own `.angular` cache and the sourcemap strip step rewrites
 // `dist/`, so both are excluded from the inputs to keep the task cacheable.
-const libraryBuild = (script: string, distDir: string) => ({
-  command: `pnpm ${script}`,
+const libraryBuild = (targetId: string, distDir: string) => ({
+  command: `node tools/icons/build-library.mjs ${targetId}`,
   dependsOn: ['icons'],
   cache: {
     input: [{ auto: true }, '!dist/**', '!.angular/**'],
@@ -29,12 +36,16 @@ export default defineConfig({
         cache: false,
       },
       lib: {
-        command: 'echo "Built outline and filled libraries"',
-        dependsOn: ['lib:outline', 'lib:filled'],
+        command: 'echo "Built all icon libraries"',
+        dependsOn: Object.keys(iconTargets).map((id) => `lib:${id}`),
         cache: false,
       },
-      'lib:outline': libraryBuild('build:lib:outline', 'dist/material-symbols-rounded-icons'),
-      'lib:filled': libraryBuild('build:lib:filled', 'dist/material-symbols-rounded-icons-filled'),
+      ...Object.fromEntries(
+        Object.entries(iconTargets).map(([id, { projectPath }]) => [
+          `lib:${id}`,
+          libraryBuild(id, `dist/${basename(projectPath)}`),
+        ]),
+      ),
     },
   },
   test: {

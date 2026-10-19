@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   publish:
-    name: Publish dual packages with provenance
+    name: Publish packages with provenance
     runs-on: ubuntu-latest
     environment: npm-publish
     if: github.repository_owner == 'captains-chest'
@@ -47,10 +47,7 @@ jobs:
       - name: Run release checks
         run: pnpm release:check
 
-      - name: Publish outline package
-        run: npm publish --access public
-        working-directory: dist/material-symbols-rounded-icons
-
-      - name: Publish filled package
-        run: npm publish --access public
-        working-directory: dist/material-symbols-rounded-icons-filled
+      # Publishes every package in tools/icons/upstream.json order. Each package needs a trusted
+      # publisher on npm first; see docs/release.md.
+      - name: Publish packages
+        run: node tools/release/for-each-package.mjs npm publish --access public
