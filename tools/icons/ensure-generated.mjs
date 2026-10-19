@@ -25,7 +25,7 @@ if (stale.length === 0) {
   console.log('Generated icon sources are up to date.');
 } else {
   console.log(`Regenerating icon sources (${stale.join('; ')})`);
-  const syncScript = path.join(repoRoot, 'tools/icons/sync-material-symbols-rounded.mjs');
+  const syncScript = path.join(repoRoot, 'tools/icons/sync-material-symbols.mjs');
   const code = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [syncScript, '--target', 'all'], {
       cwd: repoRoot,

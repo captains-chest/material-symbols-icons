@@ -1,6 +1,6 @@
 # @captains-chest/material-symbols-rounded-icons
 
-Standalone Angular outline icon components generated from Material Symbols Rounded.
+Standalone Angular unfilled icon components generated from Material Symbols Rounded.
 
 Browse all icons in the Storybook catalog: https://icons.captains-chest.com
 
@@ -94,7 +94,7 @@ import { MSR_ICON_STYLES } from '@captains-chest/material-symbols-rounded-icons'
 
 ## Angular compatibility matrix (`@captains-chest/material-symbols-rounded-icons`)
 
-> Tested in real Angular apps (`angular-16` … `angular-21`) with manual visual pages showing 10 outline/filled icon pairs side-by-side.
+> Tested in real Angular apps (`angular-16` … `angular-21`) with manual visual pages showing 10 unfilled/filled icon pairs side-by-side.
 
 | Angular version | Standalone | NgModule | Status           |
 | --------------- | ---------: | -------: | ---------------- |
@@ -122,7 +122,7 @@ If these icons save you time, you can support my work here:
 
 ## Upstream availability disclaimer
 
-This package only publishes icons that exist upstream for Material Symbols Rounded (outline variant) at the pinned source ref used for this release.
+This package only publishes icons that exist upstream for Material Symbols Rounded (unfilled variant) at the pinned source ref used for this release.
 
 Authoritative source for release availability: `ICON_MANIFEST.source` in this package.
 

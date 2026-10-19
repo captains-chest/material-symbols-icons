@@ -6,16 +6,13 @@ import path from 'node:path';
 import { test } from 'vite-plus/test';
 
 const repoRoot = process.cwd();
-const syncScript = path.join(repoRoot, 'tools/icons/sync-material-symbols-rounded.mjs');
+const syncScript = path.join(repoRoot, 'tools/icons/sync-material-symbols.mjs');
 const originalConfig = fs.readFileSync(path.join(repoRoot, 'tools/icons/upstream.json'), 'utf8');
 
 const runSyncWithConfig = (config) => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'upstream-policy-'));
-  fs.cpSync(repoRoot, tmp, {
-    recursive: true,
-    filter: (source) =>
-      !source.includes(`${path.sep}.git`) && !source.includes(`${path.sep}node_modules`),
-  });
+  // The policy check runs before any generation, so the tooling alone is enough.
+  fs.cpSync(path.join(repoRoot, 'tools'), path.join(tmp, 'tools'), { recursive: true });
   fs.writeFileSync(path.join(tmp, 'tools/icons/upstream.json'), JSON.stringify(config, null, 2));
 
   return spawnSync(process.execPath, [syncScript, '--target', 'none'], {

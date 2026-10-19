@@ -129,9 +129,12 @@ async function clonePromisorRepo(config) {
   throw lastError;
 }
 
-function filePathForIcon(iconName, config, target) {
-  return `symbols/web/${iconName}/${config.symbolFamily}/${iconName}${target.variant.fileSuffix}`;
+function filePathForIcon(iconName, target) {
+  return `symbols/web/${iconName}/${target.symbolFamily}/${iconName}${target.variant.fileSuffix}`;
 }
+
+// Each target reads one upstream file per icon, identified by its style family and file suffix.
+const sourceKey = (target) => `${target.symbolFamily}/${target.variant.fileSuffix}`;
 
 // Upstream snapshot: the SVGs for every target at the pinned ref, stored in a local cache directory
 // (default .cache/material-symbols/<ref>, override with MSR_SVG_CACHE_DIR). CI caches this directory
@@ -187,7 +190,7 @@ async function createSnapshot(config, targets, snapshotDir) {
     // such as Cloudflare Pages v3 ship git 2.34.
     const tree = await runGitRead(['ls-tree', '-r', '-z', config.ref, 'symbols/web'], tmp);
 
-    const suffixes = targets.map((target) => target.variant.fileSuffix);
+    const sources = targets.map(sourceKey);
     const wanted = [];
     for (const entry of tree.split('\0')) {
       const tab = entry.indexOf('\t');
@@ -196,12 +199,19 @@ async function createSnapshot(config, targets, snapshotDir) {
       if (type !== 'blob') continue;
       const filePath = entry.slice(tab + 1);
       const match = filePath.match(/^symbols\/web\/([^/]+)\/([^/]+)\/(.+)$/);
-      if (!match || match[2] !== config.symbolFamily) continue;
-      if (suffixes.some((suffix) => match[3] === `${match[1]}${suffix}`))
+      if (!match) continue;
+      const [, iconName, family, fileName] = match;
+      if (
+        targets.some(
+          (target) =>
+            target.symbolFamily === family &&
+            fileName === `${iconName}${target.variant.fileSuffix}`,
+        )
+      )
         wanted.push({ oid, filePath });
     }
     if (wanted.length === 0)
-      throw new Error(`No upstream SVGs found for ${config.symbolFamily} at ${config.ref}`);
+      throw new Error(`No upstream SVGs found for any target at ${config.ref}`);
 
     // One batched fetch of exactly the needed blobs; noop negotiation skips the commit walk.
     const oidList = `${wanted.map(({ oid }) => oid).join('\n')}\n`;
@@ -237,8 +247,7 @@ async function createSnapshot(config, targets, snapshotDir) {
       ref: config.ref,
       sha,
       committedAt,
-      symbolFamily: config.symbolFamily,
-      fileSuffixes: [...suffixes].sort(),
+      sources: [...new Set(sources)].sort((a, b) => a.localeCompare(b)),
       files: wanted.map(({ filePath }) => filePath).sort(),
     };
     await fs.writeFile(
@@ -259,12 +268,11 @@ async function createSnapshot(config, targets, snapshotDir) {
 }
 
 function isUsableSnapshot(manifest, config, targets) {
-  const suffixes = new Set(manifest.fileSuffixes ?? []);
+  const sources = new Set(manifest.sources ?? []);
   return (
     manifest.ref === config.ref &&
-    manifest.symbolFamily === config.symbolFamily &&
     Array.isArray(manifest.files) &&
-    targets.every((target) => suffixes.has(target.variant.fileSuffix))
+    targets.every((target) => sources.has(sourceKey(target)))
   );
 }
 
@@ -285,16 +293,21 @@ async function loadSnapshot(config, targets) {
   return { dir: snapshotDir, manifest };
 }
 
-function discoverIconNames(snapshot, config, target) {
+function discoverIconNames(snapshot, target) {
   const iconNames = [];
   for (const filePath of snapshot.manifest.files) {
-    const match = filePath.match(/^symbols\/web\/([^/]+)\/[^/]+\/(.+)$/);
-    if (match && match[2] === `${match[1]}${target.variant.fileSuffix}`) iconNames.push(match[1]);
+    const match = filePath.match(/^symbols\/web\/([^/]+)\/([^/]+)\/(.+)$/);
+    if (
+      match &&
+      match[2] === target.symbolFamily &&
+      match[3] === `${match[1]}${target.variant.fileSuffix}`
+    )
+      iconNames.push(match[1]);
   }
   return [...new Set(iconNames)].sort((a, b) => a.localeCompare(b));
 }
 
-async function readIconList(args, snapshot, config, target) {
+async function readIconList(args, snapshot, target) {
   if (args.iconsFile) {
     const raw = await fs.readFile(args.iconsFile, 'utf8');
     return raw
@@ -303,7 +316,7 @@ async function readIconList(args, snapshot, config, target) {
       .filter(Boolean);
   }
 
-  return discoverIconNames(snapshot, config, target);
+  return discoverIconNames(snapshot, target);
 }
 
 async function clearGeneratedFiles(generatedDir) {
@@ -334,7 +347,7 @@ async function generateForTarget(args, config, target, snapshot, inputsHash) {
   const collisionReportPath = path.join(repoRoot, `tools/icons/collision-report-${target.id}.txt`);
   const missingReportPath = path.join(repoRoot, `tools/icons/missing-report-${target.id}.txt`);
 
-  const discoveredOrRequested = await readIconList(args, snapshot, config, target);
+  const discoveredOrRequested = await readIconList(args, snapshot, target);
   const selected = args.limit ? discoveredOrRequested.slice(0, args.limit) : discoveredOrRequested;
 
   if (selected.length === 0)
@@ -364,7 +377,7 @@ async function generateForTarget(args, config, target, snapshot, inputsHash) {
   const generated = [];
 
   for (const iconName of selected) {
-    const relativeSvgPath = filePathForIcon(iconName, config, target);
+    const relativeSvgPath = filePathForIcon(iconName, target);
     const svgPath = path.join(snapshot.dir, relativeSvgPath);
 
     let svgText;
@@ -413,15 +426,18 @@ async function generateForTarget(args, config, target, snapshot, inputsHash) {
   }
 
   // Icon components are published only through per-icon subpaths; the root entry carries just the names.
-  const indexContent = `export const MSR_ICON_NAMES = [
+  // Names are per style (both fill packages of a style export the same MSR_/MSO_/MSS_ICON_NAMES).
+  const namesConst = `${target.namesPrefix.toUpperCase()}_ICON_NAMES`;
+  const nameType = `${target.namesPrefix}IconName`;
+  const indexContent = `export const ${namesConst} = [
 ${generated.map(({ iconName }) => `  '${iconName}',`).join('\n')}
 ] as const;
 
-export type MsrIconName = (typeof MSR_ICON_NAMES)[number];
+export type ${nameType} = (typeof ${namesConst})[number];
 `;
 
   const componentMapContent = `import { Type } from '@angular/core';
-import { MsrIconName } from './index';
+import { ${nameType} } from './index';
 ${generated
   .map(
     ({ fileName, className }) =>
@@ -429,11 +445,11 @@ ${generated
   )
   .join('\n')}
 
-export const MSR_ICON_COMPONENTS: Type<unknown>[] = [
+export const ${target.namesPrefix.toUpperCase()}_ICON_COMPONENTS: Type<unknown>[] = [
 ${generated.map(({ className }) => `  ${className},`).join('\n')}
 ];
 
-export const MSR_ICON_COMPONENT_MAP: Record<MsrIconName, Type<unknown>> = {
+export const ${target.namesPrefix.toUpperCase()}_ICON_COMPONENT_MAP: Record<${nameType}, Type<unknown>> = {
 ${generated.map(({ iconName, className }) => `  '${iconName}': ${className},`).join('\n')}
 };
 `;
@@ -448,6 +464,7 @@ ${generated.map(({ iconName, className }) => `  '${iconName}': ${className},`).j
 
   const manifest = `export const ICON_MANIFEST = {
   packageName: '${target.packageName}',
+  style: '${target.style}',
   source: {
     owner: '${config.owner}',
     repo: '${config.repo}',

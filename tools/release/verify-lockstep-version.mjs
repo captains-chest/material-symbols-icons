@@ -7,10 +7,12 @@ const repoRoot = process.cwd();
 const tagName = process.argv[2] ?? '';
 const expectedVersion = tagName.replace(/^v/, '');
 
-const packagePaths = [
-  'projects/material-symbols-rounded-icons/package.json',
-  'projects/material-symbols-rounded-icons-filled/package.json',
-];
+const upstream = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, 'tools/icons/upstream.json'), 'utf8'),
+);
+const packagePaths = Object.values(upstream.targets).map(
+  ({ projectPath }) => `${projectPath}/package.json`,
+);
 
 const packages = packagePaths.map((packagePath) => {
   const manifest = JSON.parse(fs.readFileSync(path.join(repoRoot, packagePath), 'utf8'));

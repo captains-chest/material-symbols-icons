@@ -3,7 +3,7 @@ import { test } from 'vite-plus/test';
 
 import { sanitizeSvg, SvgSanitizationError } from './svg-sanitizer.mjs';
 
-const context = { targetId: 'outline', iconName: 'safe_icon', sourcePath: 'safe.svg' };
+const context = { targetId: 'rounded', iconName: 'safe_icon', sourcePath: 'safe.svg' };
 
 test('sanitizeSvg accepts deterministic static Material Symbols markup', () => {
   const result = sanitizeSvg(

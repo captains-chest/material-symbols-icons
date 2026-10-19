@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Emits the per-icon Storybook stories into stories/generated/ (ignored by git), grouped by first
 // character so the sidebar reads Icons/A, Icons/B, ..., Icons/0-9:
-//   - icon-groups/<group>.ts      outline + filled component classes for every icon in the group
+//   - icon-groups/<group>.ts      component classes of every package (style x fill) for each icon in the group
 //   - icon-groups/index.ts        group keys and lazy loaders (the catalog imports groups on demand)
 //   - icons-<group>.stories.ts    one story per icon, rendered by stories/icon-detail
 // Reads the generated component maps, so run it after `pnpm icons:ensure`. Unchanged files are not
@@ -14,10 +14,16 @@ const repoRoot = process.cwd();
 const outDir = path.join(repoRoot, 'stories/generated');
 const groupsDir = path.join(outDir, 'icon-groups');
 
-const VARIANTS = {
-  outline: 'projects/material-symbols-rounded-icons/src/lib/icons',
-  filled: 'projects/material-symbols-rounded-icons-filled/src/lib/icons',
-};
+const upstream = JSON.parse(
+  await fs.readFile(path.join(repoRoot, 'tools/icons/upstream.json'), 'utf8'),
+);
+// Target id -> generated icons dir; ids match IconVariant in stories/icon-types.ts.
+const VARIANTS = Object.fromEntries(
+  Object.values(upstream.targets).map(({ id, projectPath }) => [
+    id,
+    `${projectPath}/src/lib/icons`,
+  ]),
+);
 
 // Icon names that cannot be used as a bare `export const` binding.
 const RESERVED = new Set(
@@ -66,8 +72,8 @@ for (const [variant, iconsDir] of Object.entries(VARIANTS)) {
   variants[variant] = await readComponentMap(iconsDir);
 }
 
-const names = [...new Set([...variants.outline.keys(), ...variants.filled.keys()])].sort((a, b) =>
-  a.localeCompare(b),
+const names = [...new Set(Object.values(variants).flatMap((icons) => [...icons.keys()]))].sort(
+  (a, b) => a.localeCompare(b),
 );
 const groups = new Map();
 for (const name of names) {
@@ -92,7 +98,7 @@ for (const [group, groupNames] of groups) {
       imports.push(
         `import { ${icon.className} } from '${importFrom('stories/generated/icon-groups', icon.modulePath)}';`,
       );
-      parts.push(`${variant}: { component: ${icon.className}, className: '${icon.className}' }`);
+      parts.push(`'${variant}': { component: ${icon.className}, className: '${icon.className}' }`);
     }
     entries.push(`  '${name}': { ${parts.join(', ')} },`);
   }

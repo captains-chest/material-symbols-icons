@@ -6,7 +6,7 @@ import path from 'node:path';
 // every stamp, so `icons:ensure` regenerates instead of reusing stale output.
 export const GENERATOR_INPUTS = [
   'tools/icons/upstream.json',
-  'tools/icons/sync-material-symbols-rounded.mjs',
+  'tools/icons/sync-material-symbols.mjs',
   'tools/icons/svg-sanitizer.mjs',
   'tools/icons/generation-stamp.mjs',
 ];

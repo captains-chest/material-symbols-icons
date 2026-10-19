@@ -26,6 +26,10 @@ updates:
     directories:
       - '/projects/material-symbols-rounded-icons'
       - '/projects/material-symbols-rounded-icons-filled'
+      - '/projects/material-symbols-outlined-icons'
+      - '/projects/material-symbols-outlined-icons-filled'
+      - '/projects/material-symbols-sharp-icons'
+      - '/projects/material-symbols-sharp-icons-filled'
     versioning-strategy: 'widen'
     schedule:
       interval: 'weekly'

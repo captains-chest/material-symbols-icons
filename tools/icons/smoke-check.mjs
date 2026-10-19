@@ -3,31 +3,24 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const repoRoot = process.cwd();
+const upstream = JSON.parse(
+  await fs.readFile(path.join(repoRoot, 'tools/icons/upstream.json'), 'utf8'),
+);
 
-const targets = [
-  {
-    id: 'outline',
-    generatedDir: 'projects/material-symbols-rounded-icons/src/lib/icons/generated',
-    hostDirectiveSnippet:
-      "hostDirectives: [{ directive: MsrIconHostDirective, inputs: ['ariaLabel'] }]",
-    svgDirectiveSnippet: 'msrIconSvg',
+const targets = Object.values(upstream.targets).map(
+  ({ id, projectPath, classPrefix, directivePrefix, selectorPrefix }) => ({
+    id,
+    generatedDir: `${projectPath}/src/lib/icons/generated`,
+    sharedDir: `${projectPath}/src/lib/shared`,
+    directivePrefix,
+    hostDirectiveSnippet: `hostDirectives: [{ directive: ${classPrefix}IconHostDirective, inputs: ['ariaLabel'] }]`,
+    svgDirectiveSnippet: `${directivePrefix}IconSvg`,
     hostSizeSnippets: [
-      'inline-size:var(--msr-icon-size, 1em)',
-      'block-size:var(--msr-icon-size, 1em)',
+      `inline-size:var(--${selectorPrefix}-icon-size, 1em)`,
+      `block-size:var(--${selectorPrefix}-icon-size, 1em)`,
     ],
-  },
-  {
-    id: 'filled',
-    generatedDir: 'projects/material-symbols-rounded-icons-filled/src/lib/icons/generated',
-    hostDirectiveSnippet:
-      "hostDirectives: [{ directive: MsrfIconHostDirective, inputs: ['ariaLabel'] }]",
-    svgDirectiveSnippet: 'msrfIconSvg',
-    hostSizeSnippets: [
-      'inline-size:var(--msrf-icon-size, 1em)',
-      'block-size:var(--msrf-icon-size, 1em)',
-    ],
-  },
-];
+  }),
+);
 
 const sharedSnippets = [
   '[attr.aria-hidden]="ariaLabel() ? null : \'true\'"',
@@ -59,11 +52,7 @@ for (const target of targets) {
 
   const requiredSnippets = [target.hostDirectiveSnippet, target.svgDirectiveSnippet];
   const svgDirectiveSource = await fs.readFile(
-    path.join(
-      generatedDir,
-      '../../shared',
-      `${target.id === 'filled' ? 'msrf' : 'msr'}-icon-svg.directive.ts`,
-    ),
+    path.join(repoRoot, target.sharedDir, `${target.directivePrefix}-icon-svg.directive.ts`),
     'utf8',
   );
   for (const snippet of [
@@ -77,11 +66,7 @@ for (const target of targets) {
       );
   }
   const hostDirectiveSource = await fs.readFile(
-    path.join(
-      generatedDir,
-      '../../shared',
-      `${target.id === 'filled' ? 'msrf' : 'msr'}-icon-host.directive.ts`,
-    ),
+    path.join(repoRoot, target.sharedDir, `${target.directivePrefix}-icon-host.directive.ts`),
     'utf8',
   );
   for (const snippet of target.hostSizeSnippets) {

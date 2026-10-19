@@ -5,7 +5,7 @@ addons.setConfig({
   panelPosition: 'right',
   theme: create({
     base: 'light',
-    brandTitle: 'Material Symbols Rounded',
+    brandTitle: 'Material Symbols',
     brandUrl: 'https://github.com/captains-chest/material-symbols-rounded-icons',
     brandTarget: '_blank',
     colorPrimary: '#6750a4',

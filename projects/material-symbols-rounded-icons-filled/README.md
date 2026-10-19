@@ -94,7 +94,7 @@ import { MSRF_ICON_STYLES } from '@captains-chest/material-symbols-rounded-icons
 
 ## Angular compatibility matrix (`@captains-chest/material-symbols-rounded-icons-filled`)
 
-> Tested in real Angular apps (`angular-16` … `angular-21`) with manual visual pages showing 10 outline/filled icon pairs side-by-side.
+> Tested in real Angular apps (`angular-16` … `angular-21`) with manual visual pages showing 10 unfilled/filled icon pairs side-by-side.
 
 | Angular version | Standalone | NgModule | Status           |
 | --------------- | ---------: | -------: | ---------------- |

@@ -25,12 +25,24 @@ A public API where each Icon is consumed through its own standalone Angular comp
 _Avoid_: Dynamic name-based icon API
 
 **Variant-Distinct Component Naming**:
-A type-level naming contract where unfilled component classes use `Msr...IconComponent` and filled classes use `Msrf...IconComponent` to avoid import collisions.
+A type-level naming contract where every package has its own class prefix (`Msr`/`Msrf` for Rounded, `Mso`/`Msof` for Outlined, `Mss`/`Mssf` for Sharp, unfilled/filled) so icons from different packages never collide on import.
 _Avoid_: Cross-package class name collisions requiring consumer aliasing
 
 **Material Symbols Rounded**:
-The sole icon family included in v1 of the library.
+The sole icon family included in v1 of the library. Since ADR 0005 it is one of three **Symbol Styles**.
 _Avoid_: Mixed icon families in v1
+
+**Symbol Style**:
+One of the three Material Symbols families: Outlined, Rounded or Sharp. Each style ships as one **Style Package Pair**. Style is not the fill axis: an Outlined icon can be unfilled or filled.
+_Avoid_: "Outline" for the unfilled fill axis (say **Unfilled**), "regular" for Outlined
+
+**Unfilled**:
+The FILL=0 side of a **Symbol Style**, published in the package without the `-filled` suffix. Older docs and tooling called it "outline"; that word now clashes with the Outlined **Symbol Style**.
+_Avoid_: Outline, outlined (for the fill axis)
+
+**Package Target**:
+One entry in `tools/icons/upstream.json` that fully describes one published package: style, upstream family, fixed variant axes, project path, package name and prefixes. Target ids are `<style>` and `<style>-filled` (for example `sharp-filled`). Generation, builds, tests, Storybook and publishing iterate over the targets.
+_Avoid_: Hard-coded package lists in tooling
 
 **Normalized Symbol Variant**:
 The fixed SVG variant profile used for every icon in v1: FILL=0, wght=400, GRAD=0, opsz=24.
@@ -41,11 +53,11 @@ A second fixed SVG profile for Material Symbols Rounded with FILL=1, wght=400, G
 _Avoid_: Mixing filled and unfilled variants inside one component set
 
 **Selector Naming Contract**:
-A deterministic naming rule where each unfilled icon component selector is `msr-<kebab-icon-name>-icon`.
+A deterministic naming rule where each unfilled icon component selector is `<prefix>-<kebab-icon-name>-icon`, with prefix `msr` (Rounded), `mso` (Outlined) or `mss` (Sharp).
 _Avoid_: Ad-hoc selector naming
 
 **Filled Selector Naming Contract**:
-A deterministic naming rule where each filled icon component selector is `msrf-<kebab-icon-name>-icon`.
+A deterministic naming rule where each filled icon component selector is `<prefix>-<kebab-icon-name>-icon`, with prefix `msrf`, `msof` or `mssf`.
 _Avoid_: Selector collisions between variant packages
 
 **Content-Sized Icon Defaults**:
@@ -93,7 +105,7 @@ A versioning rule where added icons are minor releases, removals/renames/renderi
 _Avoid_: Unsignaled icon surface changes
 
 **Lockstep Variant Versioning**:
-A release policy where unfilled and filled packages share the same version number and are released together, including releases where only one package has icon-content diffs.
+A release policy where all packages (every **Symbol Style**, unfilled and filled) share the same version number and are released together, including releases where only some packages have icon-content diffs.
 _Avoid_: Variant package version drift
 
 **Single Entrypoint Imports**:
@@ -137,8 +149,12 @@ A Storybook pattern where icon exploration is centralized in a searchable/filter
 _Avoid_: One-story-per-icon at v1 scale
 
 **Dual-Package Distribution**:
-A publishing model where the icon surface is released as two npm packages: unfilled and filled.
+A publishing model where the icon surface is released as two npm packages: unfilled and filled. Extended per style by **Style Package Pairs** (ADR 0005).
 _Avoid_: Ambiguous or ad-hoc package splitting
+
+**Style Package Pairs**:
+A publishing model where each **Symbol Style** ships as its own **Dual-Package Distribution** pair, giving six packages for Rounded, Outlined and Sharp. Weight, grade and optical size stay fixed at wght=400, GRAD=0, opsz=24 (ADR 0005).
+_Avoid_: One package per axis combination, runtime axis inputs on icon components
 
 **Manual-First Sync Governance**:
 A release governance model where upstream icon synchronization is triggered explicitly by maintainers in v1, while keeping the pipeline automation-ready.
@@ -171,6 +187,10 @@ _Avoid_: Unscoped or generic package naming
 **Filled Package Identity**:
 The published npm package name for the filled variant is `@captains-chest/material-symbols-rounded-icons-filled`.
 _Avoid_: Ambiguous naming between variant packages
+
+**Style Package Identity**:
+Every **Style Package Pair** follows `@captains-chest/material-symbols-<style>-icons` and `@captains-chest/material-symbols-<style>-icons-filled`, with `<style>` being `rounded`, `outlined` or `sharp`.
+_Avoid_: Style names that differ from the upstream family names
 
 **Standalone-Only Delivery**:
 A framework contract where all icon components are published as Angular standalone components with no NgModule wrapper API.
@@ -212,7 +232,8 @@ _Avoid_: Dual standalone/NgModule surfaces in v1
 - The playground experience is provided by a **Storybook Playground**
 - The **Storybook Playground** is backed by a minimal **Storybook Host**
 - The **Storybook Playground** is centered on a **Catalog Browser Story**
-- The library is released through **Dual-Package Distribution**
+- The library is released through **Dual-Package Distribution**, one pair per **Symbol Style** (**Style Package Pairs**)
+- Every published package is described by one **Package Target**
 - Upstream updates follow **Manual-First Sync Governance**
 - Published artifacts satisfy **Traceable Upstream Compliance**
 - Consumer documentation follows **Authoritative Pinned Reference Disclosure**
@@ -289,3 +310,6 @@ _Avoid_: Dual standalone/NgModule surfaces in v1
 - Package scope/name was unspecified — resolved to **Package Identity** `@captains-chest/material-symbols-rounded-icons`.
 - Filled package scope/name was unspecified — resolved to **Filled Package Identity** `@captains-chest/material-symbols-rounded-icons-filled`.
 - Angular API shape was unspecified — resolved to **Standalone-Only Delivery**.
+- Support for the other Material Symbols styles and axes was open — resolved with **Style Package Pairs** for Outlined and Sharp at the same fixed axes as Rounded; weight presets are a later, additive proposal (ADR 0005).
+- "Outline" was used for the unfilled fill axis, which clashes with the Outlined **Symbol Style** — resolved: say **Unfilled**; the old `outline`/`filled` target ids became `rounded`/`rounded-filled`.
+- "Regular" icons was ambiguous — resolved to mean the Outlined **Symbol Style**.

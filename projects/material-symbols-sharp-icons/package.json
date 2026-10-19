@@ -1,0 +1,57 @@
+{
+  "name": "@captains-chest/material-symbols-sharp-icons",
+  "version": "3.0.0",
+  "description": "Standalone Angular Material Symbols Sharp icon components with embedded SVG templates.",
+  "license": "MIT",
+  "author": "CaptainDuckay <hello@captains-chest.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/captains-chest/material-symbols-rounded-icons.git",
+    "directory": "projects/material-symbols-sharp-icons"
+  },
+  "homepage": "https://icons.captains-chest.com",
+  "bugs": {
+    "url": "https://github.com/captains-chest/material-symbols-rounded-icons/issues"
+  },
+  "keywords": [
+    "angular",
+    "icons",
+    "material symbols",
+    "svg",
+    "standalone components",
+    "sharp"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "files": [
+    "fesm2022/*.mjs",
+    "types/**/*.d.ts",
+    "icons/*.js",
+    "icons/*.d.ts",
+    "schematics/*.js",
+    "schematics/*.json",
+    "README.md",
+    "LICENSE",
+    "LICENSE-THIRD-PARTY.md",
+    "package.json"
+  ],
+  "exports": {
+    "./*": {
+      "types": "./icons/*.d.ts",
+      "default": "./icons/*.js"
+    }
+  },
+  "ng-update": {
+    "migrations": "./schematics/migration.json"
+  },
+  "peerDependencies": {
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
