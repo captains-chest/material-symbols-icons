@@ -9,37 +9,15 @@ updates:
       timezone: 'Europe/Copenhagen'
     commit-message:
       prefix: 'chore(deps)'
+    # This is a pnpm workspace, so the root entry also covers every package in
+    # projects/. Dependabot refuses to update from workspace subdirectories.
+    # Peer dependency ranges (>=17.0.0, no upper limit) are kept by hand and
+    # must never be narrowed.
     groups:
       # Minor and patch updates are grouped. Major updates (including Angular
       # majors: @angular/*, @angular-devkit/*, @schematics/angular, ng-packagr)
       # are never grouped and arrive as separate PRs.
       npm-minor-and-patch:
-        patterns:
-          - '*'
-        update-types:
-          - 'minor'
-          - 'patch'
-
-  # Publishable library packages: "widen" keeps existing ranges and only
-  # widens them to admit new versions, so peer ranges are never narrowed.
-  - package-ecosystem: 'npm'
-    directories:
-      - '/projects/material-symbols-rounded-icons'
-      - '/projects/material-symbols-rounded-icons-filled'
-      - '/projects/material-symbols-outlined-icons'
-      - '/projects/material-symbols-outlined-icons-filled'
-      - '/projects/material-symbols-sharp-icons'
-      - '/projects/material-symbols-sharp-icons-filled'
-    versioning-strategy: 'widen'
-    schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '08:00'
-      timezone: 'Europe/Copenhagen'
-    commit-message:
-      prefix: 'chore(deps)'
-    groups:
-      library-minor-and-patch:
         patterns:
           - '*'
         update-types:
